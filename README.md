@@ -1,6 +1,6 @@
 # Attendance Manager Web
 
-근태관리 프로그램의 초기 버전입니다. Express 기반의 백엔드와 React(Vite) 기반의 프론트엔드를 포함하고 있으며, 간단한 로그인 기능을 제공합니다.
+근태관리 프로그램의 초기 버전입니다. Express 기반의 백엔드와 React(Vite) 기반의 프론트엔드를 포함하고 있으며, JWT를 활용한 로그인 및 세션 유지 기능을 제공합니다.
 
 ## 프로젝트 구조
 
@@ -25,6 +25,8 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 ```
 
+백엔드의 `.env`에는 프론트엔드 도메인을 지정할 수 있는 `CORS_ORIGIN` 옵션이 포함되어 있습니다. 배포 환경에서 도메인이 달라질 경우 해당 값을 수정하세요.
+
 ## 설치 및 실행
 
 ### 1. 백엔드 (Express)
@@ -35,7 +37,7 @@ npm install
 npm run dev
 ```
 
-기본적으로 `http://localhost:4000`에서 API가 실행됩니다.
+기본적으로 `http://localhost:4000`에서 API가 실행되며, 로그인 성공 시 HttpOnly 쿠키에 JWT가 저장되어 브라우저 새로고침 이후에도 세션이 유지됩니다.
 
 ### 2. 프론트엔드 (React)
 
@@ -47,7 +49,7 @@ npm install
 npm run dev
 ```
 
-프론트엔드는 기본적으로 `http://localhost:5173`에서 실행되며, `.env` 파일의 `VITE_API_BASE_URL`을 통해 백엔드 주소를 변경할 수 있습니다.
+프론트엔드는 기본적으로 `http://localhost:5173`에서 실행되며, `.env` 파일의 `VITE_API_BASE_URL`을 통해 백엔드 주소를 변경할 수 있습니다. 페이지 로드 시 기존 세션이 있는 경우 자동으로 로그인 상태를 복원합니다.
 
 ## 테스트 계정
 
@@ -58,6 +60,5 @@ npm run dev
 
 ## 향후 확장 아이디어
 
-- JWT 기반 인증을 활용한 세션 유지
 - 출퇴근 기록, 휴가 신청 등 근태 기능 구현
 - DB 연동 및 사용자 관리 기능 추가
