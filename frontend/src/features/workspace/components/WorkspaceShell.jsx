@@ -48,6 +48,15 @@ export const WorkspaceShell = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [submitting, setSubmitting] = useState(false);
+  const [workspaces, setWorkspaces] = useState([]);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(null);
+  const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
+  const [workspaceForm, setWorkspaceForm] = useState({
+    name: '',
+    industry: '',
+    underFive: false
+  });
+  const [formErrors, setFormErrors] = useState({});
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -56,13 +65,87 @@ export const WorkspaceShell = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (workspaces.length === 0) {
+      setSelectedWorkspaceId(null);
+      return;
+    }
+
+    if (!workspaces.some((workspace) => workspace.id === selectedWorkspaceId)) {
+      setSelectedWorkspaceId(workspaces[0].id);
+    }
+  }, [selectedWorkspaceId, workspaces]);
+
   const tab = useMemo(() => {
     return TAB_CONFIG.find((item) => item.id === activeTab) ?? TAB_CONFIG[0];
   }, [activeTab]);
 
+  const selectedWorkspace = useMemo(() => {
+    return workspaces.find((workspace) => workspace.id === selectedWorkspaceId) ?? null;
+  }, [selectedWorkspaceId, workspaces]);
+
   if (!user) {
     return null;
   }
+
+  const generateWorkspaceId = () => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+
+    return `ws-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+  };
+
+  const handleWorkspaceFormChange = (event) => {
+    const { name, value, type, checked } = event.target;
+
+    setWorkspaceForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleWorkspaceSubmit = (event) => {
+    event.preventDefault();
+
+    const trimmedName = workspaceForm.name.trim();
+    const trimmedIndustry = workspaceForm.industry.trim();
+    const nextErrors = {};
+
+    if (!trimmedName) {
+      nextErrors.name = '매장명을 입력해주세요.';
+    }
+
+    if (!trimmedIndustry) {
+      nextErrors.industry = '업종을 입력해주세요.';
+    }
+
+    setFormErrors(nextErrors);
+
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
+    const workspace = {
+      id: generateWorkspaceId(),
+      name: trimmedName,
+      industry: trimmedIndustry,
+      underFive: workspaceForm.underFive
+    };
+
+    const nextWorkspaces = [...workspaces, workspace];
+    setWorkspaces(nextWorkspaces);
+    setSelectedWorkspaceId(workspace.id);
+    setWorkspaceForm({ name: '', industry: '', underFive: false });
+    setFormErrors({});
+    setIsCreatingWorkspace(false);
+  };
+
+  const handleCancelWorkspaceCreation = () => {
+    setIsCreatingWorkspace(false);
+    setWorkspaceForm({ name: '', industry: '', underFive: false });
+    setFormErrors({});
+  };
 
   const handleLogout = async () => {
     if (submitting) {
@@ -78,6 +161,137 @@ export const WorkspaceShell = () => {
         setSubmitting(false);
       }
     }
+  };
+
+  const renderDashboard = () => {
+    return (
+      <section className="tab-panel" aria-live="polite">
+        <div className="workspace-dashboard">
+          <div className="workspace-actions">
+            <div className="workspace-intro">
+              <h2>{tab.label}</h2>
+              <p className="tab-description">{tab.description}</p>
+            </div>
+
+            {workspaces.length > 0 && (
+              <div className="workspace-selector">
+                <label htmlFor="workspaceSelect">워크스페이스 선택</label>
+                <select
+                  id="workspaceSelect"
+                  name="workspaceSelect"
+                  className="workspace-select"
+                  value={selectedWorkspaceId ?? ''}
+                  onChange={(event) => setSelectedWorkspaceId(event.target.value)}
+                >
+                  {workspaces.map((workspace) => (
+                    <option key={workspace.id} value={workspace.id}>
+                      {workspace.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <button
+              type="button"
+              className="workspace-create-button"
+              onClick={() => setIsCreatingWorkspace(true)}
+            >
+              워크스페이스 만들기
+            </button>
+          </div>
+
+          {isCreatingWorkspace && (
+            <form className="workspace-form" onSubmit={handleWorkspaceSubmit}>
+              <div className="workspace-form-grid">
+                <label className="workspace-field">
+                  <span>매장명</span>
+                  <input
+                    type="text"
+                    name="name"
+                    value={workspaceForm.name}
+                    onChange={handleWorkspaceFormChange}
+                    placeholder="예: 서울 본점"
+                  />
+                  {formErrors.name && <p className="workspace-error">{formErrors.name}</p>}
+                </label>
+
+                <label className="workspace-field">
+                  <span>업종</span>
+                  <input
+                    type="text"
+                    name="industry"
+                    value={workspaceForm.industry}
+                    onChange={handleWorkspaceFormChange}
+                    placeholder="예: F&B, 리테일 등"
+                  />
+                  {formErrors.industry && (
+                    <p className="workspace-error">{formErrors.industry}</p>
+                  )}
+                </label>
+
+                <label className="workspace-checkbox">
+                  <input
+                    type="checkbox"
+                    name="underFive"
+                    checked={workspaceForm.underFive}
+                    onChange={handleWorkspaceFormChange}
+                  />
+                  <span>상시근로자 5인 미만 사업장</span>
+                </label>
+              </div>
+
+              <div className="workspace-form-actions">
+                <button type="submit">워크스페이스 등록</button>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={handleCancelWorkspaceCreation}
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          )}
+
+          {workspaces.length === 0 ? (
+            <p className="workspace-empty">워크스페이스를 먼저 등록하세요.</p>
+          ) : (
+            <div className="workspace-overview">
+              <div className="workspace-overview-header">
+                <h3>{selectedWorkspace?.name} 워크스페이스</h3>
+                <p>
+                  업종: {selectedWorkspace?.industry} · 상시근로자 5인 미만{' '}
+                  {selectedWorkspace?.underFive ? '예' : '아니오'}
+                </p>
+              </div>
+
+              <ul className="tab-list">
+                {tab.highlights.map((highlight) => (
+                  <li key={highlight}>{highlight}</li>
+                ))}
+              </ul>
+              <p className="tab-hint">* 해당 기능은 곧 구현될 예정입니다.</p>
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  };
+
+  const renderDefaultTab = () => {
+    return (
+      <section className="tab-panel" aria-live="polite">
+        <h2>{tab.label}</h2>
+        <p className="tab-description">{tab.description}</p>
+        <ul className="tab-list">
+          {tab.highlights.map((highlight) => (
+            <li key={highlight}>{highlight}</li>
+          ))}
+        </ul>
+        <p className="tab-hint">* 해당 기능은 곧 구현될 예정입니다.</p>
+      </section>
+    );
   };
 
   return (
@@ -114,16 +328,7 @@ export const WorkspaceShell = () => {
         ))}
       </nav>
 
-      <section className="tab-panel" aria-live="polite">
-        <h2>{tab.label}</h2>
-        <p className="tab-description">{tab.description}</p>
-        <ul className="tab-list">
-          {tab.highlights.map((highlight) => (
-            <li key={highlight}>{highlight}</li>
-          ))}
-        </ul>
-        <p className="tab-hint">* 해당 기능은 곧 구현될 예정입니다.</p>
-      </section>
+      {tab.id === 'dashboard' ? renderDashboard() : renderDefaultTab()}
     </div>
   );
 };
