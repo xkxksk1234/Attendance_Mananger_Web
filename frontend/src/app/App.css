@@ -16,13 +16,13 @@ body {
 }
 
 .app-container {
-  max-width: 400px;
+  max-width: 480px;
   margin: 4rem auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem 3rem;
   text-align: center;
 }
 
-h1 {
+.app-title {
   margin-bottom: 2rem;
 }
 
@@ -81,6 +81,11 @@ button:disabled {
 .error {
   margin: 0;
   color: #dc2626;
+}
+
+.status-message {
+  margin: 0;
+  color: #4b5563;
 }
 
 .hint {
