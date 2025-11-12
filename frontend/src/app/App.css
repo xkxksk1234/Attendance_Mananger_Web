@@ -16,28 +16,32 @@ body {
 }
 
 .app-container {
-  max-width: 480px;
+  width: min(960px, calc(100% - 3rem));
   margin: 4rem auto;
   padding: 0 1.5rem 3rem;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .app-title {
-  margin-bottom: 2rem;
+  margin: 0;
+  text-align: center;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
 }
 
 .card {
   background: #ffffff;
-  padding: 2rem;
-  border-radius: 16px;
+  padding: clamp(1.75rem, 2vw, 2.5rem);
+  border-radius: 18px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  text-align: left;
 }
 
 label {
-  text-align: left;
   font-weight: 600;
   color: #1f2937;
 }
@@ -78,19 +82,18 @@ button:disabled {
   opacity: 0.6;
 }
 
-.error {
-  margin: 0;
-  color: #dc2626;
-}
-
 .status-message {
   margin: 0;
   color: #4b5563;
 }
 
+.error {
+  margin: 0;
+  color: #dc2626;
+}
+
 .hint {
   margin-top: 2.5rem;
-  text-align: left;
   background: #ffffff;
   padding: 1.5rem;
   border-radius: 16px;
@@ -108,4 +111,122 @@ button:disabled {
 
 .hint li {
   margin-bottom: 0.5rem;
+}
+
+.session-card {
+  gap: 2rem;
+}
+
+.session-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.session-user {
+  flex: 1 1 220px;
+}
+
+.session-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.session-meta {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.logout-button {
+  margin-left: auto;
+  padding: 0.65rem 1.25rem;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.tab-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+button.tab-button {
+  background: #e5e7eb;
+  color: #1f2937;
+  box-shadow: none;
+  border-radius: 999px;
+  padding: 0.55rem 1.25rem;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+button.tab-button:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  background: #d1d5db;
+}
+
+button.tab-button.active {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25);
+}
+
+.tab-panel {
+  background: #f8faff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tab-panel h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.tab-description {
+  margin: 0;
+  color: #475569;
+}
+
+.tab-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #1f2937;
+}
+
+.tab-list li {
+  margin-bottom: 0.35rem;
+}
+
+.tab-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    margin: 2.5rem auto;
+    width: calc(100% - 2rem);
+    padding: 0 1rem 2rem;
+  }
+
+  .session-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .logout-button {
+    width: 100%;
+  }
+
+  .tab-panel {
+    padding: 1.5rem;
+  }
 }
