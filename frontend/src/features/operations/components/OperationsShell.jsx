@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { WorkspaceSelect } from '../../../shared/components/WorkspaceSelect.jsx';
 import { useAuth } from '../../auth/hooks/useAuth.js';
 import { TAB_CONFIG } from '../constants/tabConfig.js';
 import { WorkspaceProvider } from '../context/WorkspaceProvider.jsx';
+import { useWorkspace } from '../hooks/useWorkspace.js';
 import { AttendanceTab } from './AttendanceTab.jsx';
 import { DashboardTab } from './DashboardTab.jsx';
 import { EmployeesTab } from './EmployeesTab.jsx';
@@ -14,11 +16,12 @@ const TAB_COMPONENT_MAP = {
   payroll: PayrollTab
 };
 
-export const OperationsShell = () => {
-  const { user, logout } = useAuth();
+const OperationsContent = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState(TAB_CONFIG[0].id);
   const [submitting, setSubmitting] = useState(false);
   const isMountedRef = useRef(true);
+  const { workspaces, selectedWorkspaceId, selectedWorkspace, selectWorkspace, hasWorkspaces } =
+    useWorkspace();
 
   useEffect(() => {
     return () => {
@@ -32,10 +35,6 @@ export const OperationsShell = () => {
 
   const ActiveTabComponent = TAB_COMPONENT_MAP[tab.id] ?? DashboardTab;
 
-  if (!user) {
-    return null;
-  }
-
   const handleLogout = async () => {
     if (submitting) {
       return;
@@ -44,7 +43,7 @@ export const OperationsShell = () => {
     setSubmitting(true);
 
     try {
-      await logout();
+      await onLogout();
     } finally {
       if (isMountedRef.current) {
         setSubmitting(false);
@@ -53,40 +52,71 @@ export const OperationsShell = () => {
   };
 
   return (
-    <WorkspaceProvider>
-      <div className="card session-card">
-        <div className="session-header">
-          <div className="session-user">
-            <p className="session-title">
-              <strong>{user.name}</strong>님 환영합니다!
-            </p>
-            <p className="session-meta">역할: {user.role} · 이메일: {user.email}</p>
-          </div>
-          <button
-            type="button"
-            className="logout-button"
-            onClick={handleLogout}
-            disabled={submitting}
-          >
-            {submitting ? '로그아웃 중...' : '로그아웃'}
-          </button>
+    <div className="card session-card">
+      <div className="session-header">
+        <div className="session-user">
+          <p className="session-title">
+            <strong>{user.name}</strong>님 환영합니다!
+          </p>
+          <p className="session-meta">역할: {user.role} · 이메일: {user.email}</p>
         </div>
-
-        <nav className="tab-nav" aria-label="근태관리 주요 기능">
-          {TAB_CONFIG.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`tab-button${tab.id === item.id ? ' active' : ''}`}
-              onClick={() => setActiveTab(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <ActiveTabComponent tab={tab} />
+        <button
+          type="button"
+          className="logout-button"
+          onClick={handleLogout}
+          disabled={submitting}
+        >
+          {submitting ? '로그아웃 중...' : '로그아웃'}
+        </button>
       </div>
+
+      <nav className="tab-nav" aria-label="근태관리 주요 기능">
+        {TAB_CONFIG.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`tab-button${tab.id === item.id ? ' active' : ''}`}
+            onClick={() => setActiveTab(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="operations-toolbar" aria-live="polite">
+        <WorkspaceSelect
+          workspaces={workspaces}
+          selectedWorkspaceId={selectedWorkspaceId}
+          onChange={selectWorkspace}
+          selectId="operationsWorkspaceSelect"
+        />
+
+        {hasWorkspaces ? (
+          <p className="workspace-active-hint">
+            현재 선택된 워크스페이스: <strong>{selectedWorkspace?.name ?? '선택되지 않음'}</strong>
+          </p>
+        ) : (
+          <p className="workspace-empty-hint">
+            워크스페이스를 생성하면 모든 탭에서 선택할 수 있습니다.
+          </p>
+        )}
+      </div>
+
+      <ActiveTabComponent tab={tab} />
+    </div>
+  );
+};
+
+export const OperationsShell = () => {
+  const { user, logout } = useAuth();
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <WorkspaceProvider>
+      <OperationsContent user={user} onLogout={logout} />
     </WorkspaceProvider>
   );
 };

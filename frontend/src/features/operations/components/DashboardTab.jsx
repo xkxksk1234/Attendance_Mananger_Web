@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { WorkspaceSelect } from '../../../shared/components/WorkspaceSelect.jsx';
 import { useWorkspace } from '../hooks/useWorkspace.js';
 
 const INITIAL_FORM_STATE = {
@@ -9,14 +8,7 @@ const INITIAL_FORM_STATE = {
 };
 
 export const DashboardTab = ({ tab }) => {
-  const {
-    workspaces,
-    selectedWorkspace,
-    selectedWorkspaceId,
-    registerWorkspace,
-    selectWorkspace,
-    hasWorkspaces
-  } = useWorkspace();
+  const { selectedWorkspace, registerWorkspace, hasWorkspaces } = useWorkspace();
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [formState, setFormState] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState({});
@@ -79,12 +71,6 @@ export const DashboardTab = ({ tab }) => {
             <h2>{tab.label}</h2>
             <p className="tab-description">{tab.description}</p>
           </div>
-
-          <WorkspaceSelect
-            workspaces={workspaces}
-            selectedWorkspaceId={selectedWorkspaceId}
-            onChange={selectWorkspace}
-          />
 
           <button
             type="button"
