@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useAuth } from '../hooks/useAuth.js';
+import { useAuth } from '../../auth/hooks/useAuth.js';
 
 const TAB_CONFIG = [
   {
@@ -44,7 +44,7 @@ const TAB_CONFIG = [
   }
 ];
 
-export const SessionPanel = () => {
+export const WorkspaceShell = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [submitting, setSubmitting] = useState(false);

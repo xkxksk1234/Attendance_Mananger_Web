@@ -1,5 +1,5 @@
 import { LoginPanel } from './LoginPanel.jsx';
-import { SessionPanel } from './SessionPanel.jsx';
+import { WorkspaceShell } from '../../workspace/components/WorkspaceShell.jsx';
 import { useAuth } from '../hooks/useAuth.js';
 
 export const AuthGate = () => {
@@ -14,7 +14,7 @@ export const AuthGate = () => {
   }
 
   if (user) {
-    return <SessionPanel />;
+    return <WorkspaceShell />;
   }
 
   return <LoginPanel />;
