@@ -1,7 +1,8 @@
+import { EmployeeManagement } from '../employees/components/EmployeeManagement.jsx';
 import { useWorkspace } from '../hooks/useWorkspace.js';
 
 export const EmployeesTab = ({ tab }) => {
-  const { hasWorkspaces, selectedWorkspace } = useWorkspace();
+  const { hasWorkspaces } = useWorkspace();
 
   return (
     <section className="tab-panel" aria-live="polite">
@@ -12,18 +13,10 @@ export const EmployeesTab = ({ tab }) => {
         <p className="workspace-empty">워크스페이스를 먼저 등록하세요.</p>
       ) : (
         <>
-          <p className="tab-context">
-            선택된 워크스페이스: <strong>{selectedWorkspace?.name ?? '선택되지 않음'}</strong>
-          </p>
-          <ul className="tab-list">
-            {tab.highlights.map((highlight) => (
-              <li key={highlight}>{highlight}</li>
-            ))}
-          </ul>
+          <EmployeeManagement />
+          <p className="tab-hint">* {tab.label} 기능은 지속적으로 확장될 예정입니다.</p>
         </>
       )}
-
-      <p className="tab-hint">* 해당 기능은 곧 구현될 예정입니다.</p>
     </section>
   );
 };

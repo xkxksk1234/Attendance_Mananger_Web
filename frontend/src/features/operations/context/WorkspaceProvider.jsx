@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DEFAULT_WORKSPACE_ROLES } from '../constants/workspaceDefaults.js';
 import { WorkspaceContext } from './WorkspaceContext.js';
 
 const generateWorkspaceId = () => {
@@ -31,9 +32,14 @@ export const WorkspaceProvider = ({ children }) => {
   }, [workspaces]);
 
   const registerWorkspace = useCallback((workspaceInput) => {
+    const workspaceRoles = workspaceInput.roles?.length
+      ? [...workspaceInput.roles]
+      : [...DEFAULT_WORKSPACE_ROLES];
+
     const workspace = {
       id: generateWorkspaceId(),
-      ...workspaceInput
+      ...workspaceInput,
+      roles: workspaceRoles
     };
 
     setWorkspaces((prev) => [...prev, workspace]);

@@ -395,6 +395,140 @@ button.tab-button.active {
   color: #64748b;
 }
 
+.employee-management {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.employee-management-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+}
+
+.employee-management-header h3 {
+  margin: 0 0 0.25rem;
+}
+
+.employee-management-header p {
+  margin: 0;
+  color: #475569;
+}
+
+.employee-form {
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.employee-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.employee-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.employee-field span {
+  font-weight: 600;
+}
+
+.employee-form textarea {
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  padding: 0.85rem 1rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.employee-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.field-error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+.employee-empty {
+  margin: 0;
+  padding: 1rem;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  color: #92400e;
+  font-weight: 600;
+  text-align: center;
+}
+
+.employee-list {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.employee-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.employee-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(80px, 1fr)) minmax(140px, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.employee-row--header {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  font-weight: 700;
+}
+
+.employee-row-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.button-tertiary,
+.button-danger {
+  background: #e5e7eb;
+  color: #1f2937;
+  box-shadow: none;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.9rem;
+}
+
+.button-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+
 @media (max-width: 640px) {
   .app-container {
     margin: 2.5rem auto;

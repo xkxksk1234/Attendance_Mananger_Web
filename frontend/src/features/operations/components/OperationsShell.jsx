@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/hooks/useAuth.js';
 import { TAB_CONFIG } from '../constants/tabConfig.js';
 import { WorkspaceProvider } from '../context/WorkspaceProvider.jsx';
 import { useWorkspace } from '../hooks/useWorkspace.js';
+import { EmployeesProvider } from '../employees/context/EmployeesProvider.jsx';
 import { AttendanceTab } from './AttendanceTab.jsx';
 import { DashboardTab } from './DashboardTab.jsx';
 import { EmployeesTab } from './EmployeesTab.jsx';
@@ -116,7 +117,9 @@ export const OperationsShell = () => {
 
   return (
     <WorkspaceProvider>
-      <OperationsContent user={user} onLogout={logout} />
+      <EmployeesProvider>
+        <OperationsContent user={user} onLogout={logout} />
+      </EmployeesProvider>
     </WorkspaceProvider>
   );
 };
