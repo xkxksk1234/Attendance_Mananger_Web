@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useEmployees } from '../hooks/useEmployees.js';
 import {
   addYearsToDateInput,
@@ -9,7 +9,7 @@ import {
 } from '../utils/formatters.js';
 import { EMPLOYEE_LIMITS, validateEmployeeForm } from '../utils/validators.js';
 
-const createInitialState = () => {
+const createInitialState = (overrides = {}) => {
   const today = toDateInputValue(new Date());
 
   return {
@@ -24,21 +24,59 @@ const createInitialState = () => {
     address: '',
     contract_date: today,
     expiration_date: addYearsToDateInput(today, 1),
-    memo: ''
+    memo: '',
+    ...overrides
   };
 };
 
-export const EmployeeForm = ({ availableRoles, onComplete }) => {
-  const { registerEmployee } = useEmployees();
-  const [formState, setFormState] = useState(createInitialState);
+const mapEmployeeToFormState = (employee) => {
+  if (!employee) {
+    return null;
+  }
+
+  const baseContractDate = employee.contract_date ?? toDateInputValue(new Date());
+
+  return {
+    emp_id: String(employee.emp_id ?? ''),
+    name: employee.name ?? '',
+    rrn: employee.rrn ?? '',
+    role: employee.role ?? '',
+    phone: employee.phone ?? '',
+    pay: String(employee.pay ?? ''),
+    bank_name: employee.bank_name ?? '',
+    bank_account: employee.bank_account ? String(employee.bank_account) : '',
+    address: employee.address ?? '',
+    contract_date: baseContractDate,
+    expiration_date: employee.expiration_date ?? addYearsToDateInput(baseContractDate, 1),
+    memo: employee.memo ?? ''
+  };
+};
+
+export const EmployeeForm = ({ availableRoles, onComplete, initialValues }) => {
+  const { registerEmployee, updateEmployee } = useEmployees();
+  const [formState, setFormState] = useState(() => createInitialState());
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [currentEmployeeId, setCurrentEmployeeId] = useState(null);
 
   const roleOptions = useMemo(() => availableRoles ?? [], [availableRoles]);
+  const isEditMode = Boolean(initialValues);
+
+  useEffect(() => {
+    if (initialValues) {
+      setFormState(createInitialState(mapEmployeeToFormState(initialValues)));
+      setCurrentEmployeeId(initialValues.id);
+    } else {
+      setFormState(createInitialState());
+      setCurrentEmployeeId(null);
+    }
+    setErrors({});
+  }, [initialValues]);
 
   const resetForm = () => {
     setFormState(createInitialState());
     setErrors({});
+    setCurrentEmployeeId(null);
   };
 
   const handleFieldChange = (event) => {
@@ -116,7 +154,7 @@ export const EmployeeForm = ({ availableRoles, onComplete }) => {
     setSubmitting(true);
 
     try {
-      await registerEmployee({
+      const payload = {
         emp_id: Number(formState.emp_id),
         name: validationState.name,
         rrn: validationState.rrn || '',
@@ -129,12 +167,20 @@ export const EmployeeForm = ({ availableRoles, onComplete }) => {
         contract_date: formState.contract_date,
         expiration_date: formState.expiration_date,
         memo: validationState.memo
+      };
+
+      const result = isEditMode
+        ? await updateEmployee(currentEmployeeId, payload)
+        : await registerEmployee(payload);
+
+      onComplete?.({
+        mode: isEditMode ? 'edit' : 'create',
+        employeeId: result?.id ?? currentEmployeeId ?? null
       });
 
       resetForm();
-      onComplete?.();
     } catch (error) {
-      console.error('직원 등록 중 오류가 발생했습니다.', error);
+      console.error('직원 정보를 저장하는 중 오류가 발생했습니다.', error);
     } finally {
       setSubmitting(false);
     }
@@ -142,6 +188,9 @@ export const EmployeeForm = ({ availableRoles, onComplete }) => {
 
   return (
     <form className="employee-form" onSubmit={handleSubmit}>
+      <div className="employee-form-title">
+        <h3>{isEditMode ? '직원 정보 수정' : '직원 등록'}</h3>
+      </div>
       <div className="employee-form-grid">
         <label className="employee-field">
           <span>사번 *</span>
@@ -305,14 +354,14 @@ export const EmployeeForm = ({ availableRoles, onComplete }) => {
 
       <div className="employee-form-actions">
         <button type="submit" disabled={submitting}>
-          {submitting ? '등록 중...' : '직원 저장'}
+          {submitting ? '저장 중...' : isEditMode ? '직원 수정' : '직원 저장'}
         </button>
         <button
           type="button"
           className="button-secondary"
           onClick={() => {
             resetForm();
-            onComplete?.();
+            onComplete?.({ mode: 'cancel' });
           }}
         >
           닫기

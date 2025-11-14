@@ -436,6 +436,16 @@ button.tab-button.active {
   gap: 1.25rem;
 }
 
+.employee-form-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.employee-form-title h3 {
+  margin: 0;
+}
+
 .employee-form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

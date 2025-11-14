@@ -1,6 +1,12 @@
 import { truncateMemo } from '../utils/truncateMemo.js';
 
-export const EmployeeList = ({ employees, onSelect, selectedEmployeeId }) => {
+export const EmployeeList = ({
+  employees,
+  onSelect,
+  selectedEmployeeId,
+  onEdit,
+  onDelete
+}) => {
   const handleRowSelect = (employee) => {
     if (!onSelect) {
       return;
@@ -62,14 +68,20 @@ export const EmployeeList = ({ employees, onSelect, selectedEmployeeId }) => {
                 <button
                   type="button"
                   className="button-tertiary"
-                  onClick={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onEdit?.(employee);
+                  }}
                 >
                   수정
                 </button>
                 <button
                   type="button"
                   className="button-danger"
-                  onClick={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDelete?.(employee);
+                  }}
                 >
                   삭제
                 </button>
