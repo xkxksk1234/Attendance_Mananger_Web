@@ -1,6 +1,25 @@
 import { truncateMemo } from '../utils/truncateMemo.js';
 
-export const EmployeeList = ({ employees }) => {
+export const EmployeeList = ({ employees, onSelect, selectedEmployeeId }) => {
+  const handleRowSelect = (employee) => {
+    if (!onSelect) {
+      return;
+    }
+
+    onSelect(employee);
+  };
+
+  const handleRowKeyDown = (event, employee) => {
+    if (!onSelect) {
+      return;
+    }
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onSelect(employee);
+    }
+  };
+
   if (!employees?.length) {
     return <p className="employee-empty">직원을 등록해 주세요!</p>;
   }
@@ -18,24 +37,46 @@ export const EmployeeList = ({ employees }) => {
             작업
           </span>
         </div>
+        {employees.map((employee) => {
+          const isSelected = selectedEmployeeId === employee.id;
 
-        {employees.map((employee) => (
-          <div className="employee-row" role="row" key={employee.id}>
-            <span role="cell">{employee.emp_id}</span>
-            <span role="cell">{employee.name}</span>
-            <span role="cell">{employee.role}</span>
-            <span role="cell">{employee.expiration_date}</span>
-            <span role="cell">{truncateMemo(employee.memo)}</span>
-            <span role="cell" className="employee-row-actions">
-              <button type="button" className="button-tertiary">
-                수정
-              </button>
-              <button type="button" className="button-danger">
-                삭제
-              </button>
-            </span>
-          </div>
-        ))}
+          return (
+            <div
+              className={`employee-row employee-row--clickable${
+                isSelected ? ' employee-row--selected' : ''
+              }`}
+              role="row"
+              key={employee.id}
+              tabIndex={0}
+              aria-selected={isSelected}
+              data-hover-hint="직원 상세 정보를 보려면 눌러주세요."
+              onClick={() => handleRowSelect(employee)}
+              onKeyDown={(event) => handleRowKeyDown(event, employee)}
+            >
+              <span role="cell">{employee.emp_id}</span>
+              <span role="cell">{employee.name}</span>
+              <span role="cell">{employee.role}</span>
+              <span role="cell">{employee.expiration_date}</span>
+              <span role="cell">{truncateMemo(employee.memo)}</span>
+              <span role="cell" className="employee-row-actions">
+                <button
+                  type="button"
+                  className="button-tertiary"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  수정
+                </button>
+                <button
+                  type="button"
+                  className="button-danger"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  삭제
+                </button>
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
