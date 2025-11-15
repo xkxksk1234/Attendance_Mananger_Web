@@ -24,6 +24,10 @@ body {
   gap: 2rem;
 }
 
+.app-container--session {
+  width: min(1200px, calc(100% - 1rem));
+}
+
 .app-title {
   margin: 0;
   text-align: center;
