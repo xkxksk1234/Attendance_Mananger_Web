@@ -9,6 +9,7 @@ import { AttendanceTab } from './AttendanceTab.jsx';
 import { DashboardTab } from './DashboardTab.jsx';
 import { EmployeesTab } from './EmployeesTab.jsx';
 import { PayrollTab } from './PayrollTab.jsx';
+import { AttendanceProvider } from '../attendance/context/AttendanceProvider.jsx';
 
 const TAB_COMPONENT_MAP = {
   dashboard: DashboardTab,
@@ -118,7 +119,9 @@ export const OperationsShell = () => {
   return (
     <WorkspaceProvider>
       <EmployeesProvider>
-        <OperationsContent user={user} onLogout={logout} />
+        <AttendanceProvider>
+          <OperationsContent user={user} onLogout={logout} />
+        </AttendanceProvider>
       </EmployeesProvider>
     </WorkspaceProvider>
   );

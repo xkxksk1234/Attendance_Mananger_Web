@@ -1,0 +1,58 @@
+.app-container {
+  width: min(960px, calc(100% - 2rem));
+  margin: 3rem auto;
+  padding: 0 1rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.app-container--session {
+  width: min(1200px, calc(100% - 1rem));
+}
+
+.app-title {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.card {
+  background: #ffffff;
+  padding: clamp(1.75rem, 2vw, 2.5rem);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  text-align: left;
+}
+
+.hint {
+  margin-top: 2.5rem;
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+}
+
+.hint h2 {
+  margin-top: 0;
+}
+
+.hint ul {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.hint li {
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .app-container {
+    margin: 1.5rem auto;
+    width: 100%;
+    padding: 0 0.75rem 1.25rem;
+  }
+}

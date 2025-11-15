@@ -1,0 +1,45 @@
+button {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.button-secondary {
+  background: #e5e7eb;
+  color: #1f2937;
+  box-shadow: none;
+}
+
+.button-secondary:hover:not(:disabled) {
+  background: #d1d5db;
+}
+
+.button-tertiary,
+.button-danger {
+  background: #e5e7eb;
+  color: #1f2937;
+  box-shadow: none;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.9rem;
+}
+
+.button-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
