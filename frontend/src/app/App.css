@@ -582,6 +582,23 @@ button.tab-button.active {
   justify-content: flex-end;
 }
 
+.employee-cell {
+  min-width: 0;
+  word-break: break-word;
+}
+
+@media (max-width: 1000px) {
+  .employee-cell--memo {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .employee-cell--expiration {
+    display: none;
+  }
+}
+
 .button-tertiary,
 .button-danger {
   background: #e5e7eb;
@@ -730,12 +747,18 @@ button.tab-button.active {
   }
 
   .employee-row {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
     padding: 0.75rem;
   }
 
   .employee-row-actions {
     justify-content: flex-start;
+    grid-column: 1 / -1;
+  }
+
+  .employee-cell--role,
+  .employee-cell--actions {
+    display: none;
   }
 
   .employee-detail {
