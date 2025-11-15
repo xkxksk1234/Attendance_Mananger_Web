@@ -16,9 +16,9 @@ body {
 }
 
 .app-container {
-  width: min(960px, calc(100% - 3rem));
-  margin: 4rem auto;
-  padding: 0 1.5rem 3rem;
+  width: min(960px, calc(100% - 2rem));
+  margin: 3rem auto;
+  padding: 0 1rem 2.25rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -654,9 +654,9 @@ button.tab-button.active {
 
 @media (max-width: 640px) {
   .app-container {
-    margin: 2.5rem auto;
-    width: calc(100% - 2rem);
-    padding: 0 1rem 2rem;
+    margin: 1.5rem auto;
+    width: 100%;
+    padding: 0 0.75rem 1.25rem;
   }
 
   .session-header {
