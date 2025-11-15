@@ -676,4 +676,58 @@ button.tab-button.active {
   .workspace-form-actions {
     flex-direction: column;
   }
+
+  .employee-management {
+    gap: 1rem;
+  }
+
+  .employee-management-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+
+  .employee-management-header button {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .employee-form {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .employee-form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .employee-form-actions {
+    flex-direction: column;
+  }
+
+  .employee-empty {
+    padding: 0.75rem;
+  }
+
+  .employee-list {
+    padding: 0.75rem;
+  }
+
+  .employee-row {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    padding: 0.75rem;
+  }
+
+  .employee-row-actions {
+    justify-content: flex-start;
+  }
+
+  .employee-detail {
+    padding: 1rem;
+  }
+
+  .employee-detail-grid {
+    grid-template-columns: 1fr;
+  }
 }

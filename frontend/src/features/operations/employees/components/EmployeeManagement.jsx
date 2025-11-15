@@ -65,7 +65,7 @@ export const EmployeeManagement = () => {
     }
 
     const confirmed = window.confirm(
-      `${employee.name} 직원을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.`
+      `${employee.name} (${employee.emp_id}) 직원을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.`
     );
 
     if (!confirmed) {
