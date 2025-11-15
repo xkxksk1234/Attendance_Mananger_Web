@@ -55,7 +55,8 @@ input {
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
@@ -72,6 +73,13 @@ select {
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 1rem;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
 }
 
 button {
@@ -282,8 +290,9 @@ button.tab-button.active {
 
 .workspace-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 1.25rem;
+  min-width: 0;
 }
 
 .workspace-field {
@@ -448,8 +457,9 @@ button.tab-button.active {
 
 .employee-form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 1.25rem;
+  min-width: 0;
 }
 
 .employee-field {
@@ -614,8 +624,9 @@ button.tab-button.active {
 
 .employee-detail-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
   gap: 1rem;
+  min-width: 0;
 }
 
 .employee-detail-field {
