@@ -668,8 +668,12 @@ button.tab-button.active {
     width: 100%;
   }
 
+  .card.session-card {
+    padding: 1rem;
+  }
+
   .tab-panel {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .workspace-actions {
