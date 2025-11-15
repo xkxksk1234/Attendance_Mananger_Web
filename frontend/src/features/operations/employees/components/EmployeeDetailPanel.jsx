@@ -16,7 +16,7 @@ const formatPay = (pay) => {
   return `${pay.toLocaleString('ko-KR')} 원 / 시`;
 };
 
-export const EmployeeDetailPanel = ({ employee, onClose }) => {
+export const EmployeeDetailPanel = ({ employee, onClose, onEdit, onDelete }) => {
   const rows = useMemo(
     () => [
       { label: '사번', value: formatValue(employee.emp_id) },
@@ -46,6 +46,25 @@ export const EmployeeDetailPanel = ({ employee, onClose }) => {
           상세 보기 닫기
         </button>
       </div>
+
+      {(onEdit || onDelete) && (
+        <div className="employee-detail-actions" aria-label="직원 작업">
+          <button
+            type="button"
+            className="button-tertiary"
+            onClick={() => onEdit?.(employee)}
+          >
+            수정
+          </button>
+          <button
+            type="button"
+            className="button-danger"
+            onClick={() => onDelete?.(employee)}
+          >
+            삭제
+          </button>
+        </div>
+      )}
 
       <dl className="employee-detail-grid">
         {rows.map((row) => (

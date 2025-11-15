@@ -121,7 +121,12 @@ export const EmployeeManagement = () => {
       />
 
       {selectedEmployee && (
-        <EmployeeDetailPanel employee={selectedEmployee} onClose={handleDetailClose} />
+        <EmployeeDetailPanel
+          employee={selectedEmployee}
+          onClose={handleDetailClose}
+          onEdit={handleEmployeeEdit}
+          onDelete={handleEmployeeDelete}
+        />
       )}
     </div>
   );

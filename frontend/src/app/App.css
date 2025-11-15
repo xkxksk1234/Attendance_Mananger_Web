@@ -580,6 +580,15 @@ button.tab-button.active {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.employee-row-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  white-space: nowrap;
 }
 
 .employee-cell {
@@ -611,6 +620,12 @@ button.tab-button.active {
 .button-danger {
   background: #fee2e2;
   color: #b91c1c;
+}
+
+.employee-detail-actions {
+  display: none;
+  gap: 0.5rem;
+  justify-content: stretch;
 }
 
 .employee-detail {
@@ -754,6 +769,16 @@ button.tab-button.active {
   .employee-row-actions {
     justify-content: flex-start;
     grid-column: 1 / -1;
+  }
+
+  .employee-detail-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .employee-detail-actions button {
+    flex: 1 1 auto;
   }
 
   .employee-cell--role,
