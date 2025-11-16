@@ -11,14 +11,28 @@ export const AttendanceRecordList = ({ records, onEdit, onDelete }) => {
       <table className="attendance-table">
         <thead>
           <tr>
-            <th scope="col">날짜</th>
-            <th scope="col">근무 상태</th>
-            <th scope="col">출근</th>
-            <th scope="col">퇴근</th>
-            <th scope="col">휴게</th>
-            <th scope="col">총 근무</th>
-            <th scope="col">비고</th>
-            <th scope="col" className="attendance-table-actions-header">
+            <th scope="col" className="attendance-col attendance-col-date">
+              날짜
+            </th>
+            <th scope="col" className="attendance-col attendance-col-check-in">
+              출근
+            </th>
+            <th scope="col" className="attendance-col attendance-col-check-out">
+              퇴근
+            </th>
+            <th scope="col" className="attendance-col attendance-col-total">
+              총 근무
+            </th>
+            <th scope="col" className="attendance-col attendance-col-break">
+              휴게
+            </th>
+            <th scope="col" className="attendance-col attendance-col-status">
+              근무 상태
+            </th>
+            <th scope="col" className="attendance-col attendance-col-memo">
+              비고
+            </th>
+            <th scope="col" className="attendance-col attendance-col-actions">
               작업
             </th>
           </tr>
@@ -28,17 +42,19 @@ export const AttendanceRecordList = ({ records, onEdit, onDelete }) => {
             const totalMinutes = calculateWorkMinutes(record);
             const statusLabel = getAttendanceStatusLabel(record.status);
             const memoPreview = record.memo?.trim() ? record.memo : '-';
+            const breakLabel = record.breakMinutes ? `${record.breakMinutes}분` : '0분';
+            const totalLabel = formatWorkDuration(totalMinutes);
 
             return (
               <tr key={record.id}>
-                <td>{formatDateLabel(record.date)}</td>
-                <td className="attendance-status-cell">{statusLabel}</td>
-                <td>{record.checkIn || '-'}</td>
-                <td>{record.checkOut || '-'}</td>
-                <td>{record.breakMinutes ? `${record.breakMinutes}분` : '0분'}</td>
-                <td>{formatWorkDuration(totalMinutes)}</td>
-                <td className="attendance-memo-cell">{memoPreview}</td>
-                <td>
+                <td className="attendance-col attendance-col-date">{formatDateLabel(record.date)}</td>
+                <td className="attendance-col attendance-col-check-in">{record.checkIn || '-'}</td>
+                <td className="attendance-col attendance-col-check-out">{record.checkOut || '-'}</td>
+                <td className="attendance-col attendance-col-total">{totalLabel}</td>
+                <td className="attendance-col attendance-col-break">{breakLabel}</td>
+                <td className="attendance-col attendance-col-status attendance-status-cell">{statusLabel}</td>
+                <td className="attendance-col attendance-col-memo attendance-memo-cell">{memoPreview}</td>
+                <td className="attendance-col attendance-col-actions">
                   <div className="attendance-table-actions">
                     <button type="button" className="button-tertiary" onClick={() => onEdit(record)}>
                       수정

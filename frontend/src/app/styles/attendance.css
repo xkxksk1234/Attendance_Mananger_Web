@@ -192,15 +192,61 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.attendance-table-actions-header {
-  text-align: right;
-}
-
 .attendance-table-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
+}
+
+.attendance-col-actions {
+  text-align: right;
+  min-width: 150px;
+}
+
+.attendance-col-actions .attendance-table-actions {
+  justify-content: flex-end;
+}
+
+.attendance-col-memo {
+  max-width: 260px;
+}
+
+@media (max-width: 1200px) {
+  .attendance-col-actions {
+    display: none;
+  }
+}
+
+@media (max-width: 1050px) {
+  .attendance-table {
+    min-width: 640px;
+  }
+
+  .attendance-col-memo {
+    display: none;
+  }
+}
+
+@media (max-width: 920px) {
+  .attendance-col-status {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .attendance-col-break {
+    display: none;
+  }
+}
+
+@media (max-width: 740px) {
+  .attendance-table {
+    min-width: 520px;
+  }
+
+  .attendance-col-total {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -232,7 +278,7 @@
   }
 
   .attendance-table {
-    min-width: 560px;
+    min-width: 480px;
   }
 
   .attendance-table-actions {
