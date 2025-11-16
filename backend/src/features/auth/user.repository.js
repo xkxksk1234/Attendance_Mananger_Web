@@ -1,35 +1,49 @@
-import bcrypt from 'bcryptjs';
+import { db } from '../../config/database.js';
 
-const seededUsers = Object.freeze(
-  [
-    {
-      id: 1,
-      name: '관리자',
-      email: 'admin@example.com',
-      role: 'admin',
-      passwordHash: bcrypt.hashSync('admin123', 10)
-    },
-    {
-      id: 2,
-      name: '홍길동',
-      email: 'hong@example.com',
-      role: 'employee',
-      passwordHash: bcrypt.hashSync('password123', 10)
-    }
-  ].map((user) => Object.freeze(user))
-);
+const mapUserRow = (row) => {
+  if (!row) {
+    return null;
+  }
 
-const normalizeEmail = (email) => email.trim().toLowerCase();
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    role: row.role,
+    passwordHash: row.password_hash
+  };
+};
 
 export const userRepository = {
   async findByEmail(email) {
-    const normalizedEmail = normalizeEmail(email);
-    return (
-      seededUsers.find((user) => user.email.toLowerCase() === normalizedEmail) || null
+    if (!email) {
+      return null;
+    }
+
+    const rows = await db.query(
+      `SELECT id, name, email, role, password_hash
+       FROM users
+       WHERE LOWER(email) = LOWER(?)
+       LIMIT 1`,
+      [email]
     );
+
+    return mapUserRow(rows[0]);
   },
 
   async findById(id) {
-    return seededUsers.find((user) => user.id === Number(id)) || null;
+    if (!id) {
+      return null;
+    }
+
+    const rows = await db.query(
+      `SELECT id, name, email, role, password_hash
+       FROM users
+       WHERE id = ?
+       LIMIT 1`,
+      [id]
+    );
+
+    return mapUserRow(rows[0]);
   }
 };

@@ -7,7 +7,7 @@ import { EmployeeList } from './EmployeeList.jsx';
 import { EmployeeDetailPanel } from './EmployeeDetailPanel.jsx';
 
 export const EmployeeManagement = () => {
-  const { employees, removeEmployee } = useEmployees();
+  const { employees, removeEmployee, isLoading, error } = useEmployees();
   const { selectedWorkspace } = useWorkspace();
   const [formState, setFormState] = useState({ visible: false, employee: null });
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
@@ -20,7 +20,7 @@ export const EmployeeManagement = () => {
   const editingEmployee = formState.employee;
 
   const selectedEmployee = useMemo(
-    () => employees.find((employee) => employee.id === selectedEmployeeId),
+    () => employees.find((employee) => String(employee.id) === selectedEmployeeId),
     [employees, selectedEmployeeId]
   );
 
@@ -47,7 +47,7 @@ export const EmployeeManagement = () => {
   const handleFormComplete = (result) => {
     closeForm();
     if (result?.employeeId) {
-      setSelectedEmployeeId(result.employeeId);
+      setSelectedEmployeeId(String(result.employeeId));
     }
   };
 
@@ -56,10 +56,11 @@ export const EmployeeManagement = () => {
   };
 
   const handleEmployeeSelect = (employee) => {
-    setSelectedEmployeeId((prev) => (prev === employee.id ? null : employee.id));
+    const nextId = String(employee.id);
+    setSelectedEmployeeId((prev) => (prev === nextId ? null : nextId));
   };
 
-  const handleEmployeeDelete = (employee) => {
+  const handleEmployeeDelete = async (employee) => {
     if (!employee) {
       return;
     }
@@ -72,9 +73,15 @@ export const EmployeeManagement = () => {
       return;
     }
 
-    removeEmployee?.(employee.id);
+    try {
+      await removeEmployee?.(employee.id);
+    } catch (err) {
+      console.error('직원을 삭제하는 중 오류가 발생했습니다.', err);
+      return;
+    }
 
-    setSelectedEmployeeId((prev) => (prev === employee.id ? null : prev));
+    const targetId = String(employee.id);
+    setSelectedEmployeeId((prev) => (prev === targetId ? null : prev));
 
     setFormState((prev) => {
       if (prev.employee?.id === employee.id) {
@@ -103,6 +110,13 @@ export const EmployeeManagement = () => {
           {showForm ? (editingEmployee ? '수정 취소' : '등록 취소') : '직원 등록'}
         </button>
       </div>
+
+      {isLoading && <p className="employee-loading">직원 정보를 불러오는 중입니다...</p>}
+      {error && !isLoading && (
+        <p className="employee-error" role="alert">
+          {error}
+        </p>
+      )}
 
       {showForm && (
         <EmployeeForm

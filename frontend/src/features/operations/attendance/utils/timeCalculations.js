@@ -1,4 +1,8 @@
 export const calculateWorkMinutes = (record) => {
+  if (typeof record?.totalMinutes === 'number') {
+    return record.totalMinutes;
+  }
+
   if (!record?.checkIn || !record?.checkOut) {
     return 0;
   }

@@ -26,6 +26,8 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 const isProduction = nodeEnv === 'production';
 const port = toNumber(process.env.PORT, 4000);
 const sessionTtlHours = toNumber(process.env.SESSION_TTL_HOURS, 2);
+const dbPort = toNumber(process.env.DB_PORT, 3306);
+const dbPoolSize = toNumber(process.env.DB_POOL_SIZE, 10);
 
 export const env = {
   nodeEnv,
@@ -36,5 +38,13 @@ export const env = {
   rawCorsOrigins,
   tokenCookieName: process.env.TOKEN_COOKIE_NAME || 'attendance_token',
   sessionTtlMs: sessionTtlHours * 60 * 60 * 1000,
-  cookieSameSite: normalizeSameSite(process.env.COOKIE_SAME_SITE)
+  cookieSameSite: normalizeSameSite(process.env.COOKIE_SAME_SITE),
+  db: {
+    host: process.env.DB_HOST || '127.0.0.1',
+    port: dbPort,
+    user: process.env.DB_USER || 'attendance_user',
+    password: process.env.DB_PASSWORD || 'attendance_password',
+    database: process.env.DB_NAME || 'attendance_manager',
+    poolSize: dbPoolSize
+  }
 };

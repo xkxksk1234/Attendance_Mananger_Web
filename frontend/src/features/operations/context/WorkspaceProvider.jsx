@@ -1,59 +1,69 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { DEFAULT_WORKSPACE_ROLES } from '../constants/workspaceDefaults.js';
+import { workspaceApi } from '../api/workspaceApi.js';
 import { WorkspaceContext } from './WorkspaceContext.js';
-
-const generateWorkspaceId = () => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-
-  return `ws-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-};
 
 export const WorkspaceProvider = ({ children }) => {
   const [workspaces, setWorkspaces] = useState([]);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (workspaces.length === 0) {
-      setSelectedWorkspaceId(null);
-      return;
+  const normalizeWorkspaceId = useCallback((value) => {
+    if (!value && value !== 0) {
+      return null;
     }
 
-    setSelectedWorkspaceId((currentId) => {
-      if (!currentId) {
-        return workspaces[0].id;
+    return String(value);
+  }, []);
+
+  const loadWorkspaces = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const data = await workspaceApi.fetchWorkspaces();
+      setWorkspaces(data);
+      setError(null);
+
+      if (data.length === 0) {
+        setSelectedWorkspaceId(null);
+        return;
       }
 
-      return workspaces.some((workspace) => workspace.id === currentId)
-        ? currentId
-        : workspaces[0].id;
-    });
-  }, [workspaces]);
+      setSelectedWorkspaceId((currentId) => {
+        if (currentId && data.some((workspace) => String(workspace.id) === currentId)) {
+          return currentId;
+        }
 
-  const registerWorkspace = useCallback((workspaceInput) => {
-    const workspaceRoles = workspaceInput.roles?.length
-      ? [...workspaceInput.roles]
-      : [...DEFAULT_WORKSPACE_ROLES];
-
-    const workspace = {
-      id: generateWorkspaceId(),
-      ...workspaceInput,
-      roles: workspaceRoles
-    };
-
-    setWorkspaces((prev) => [...prev, workspace]);
-    setSelectedWorkspaceId(workspace.id);
-
-    return workspace;
+        return String(data[0].id);
+      });
+    } catch (err) {
+      console.error('워크스페이스를 불러오는 중 오류가 발생했습니다.', err);
+      setError('워크스페이스 정보를 불러오는 데 실패했습니다.');
+      setWorkspaces([]);
+      setSelectedWorkspaceId(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadWorkspaces();
+  }, [loadWorkspaces]);
+
+  const registerWorkspace = useCallback(async (workspaceInput) => {
+    const workspace = await workspaceApi.createWorkspace(workspaceInput);
+    setWorkspaces((prev) => [...prev, workspace]);
+    setSelectedWorkspaceId(normalizeWorkspaceId(workspace.id));
+    return workspace;
+  }, [normalizeWorkspaceId]);
 
   const selectWorkspace = useCallback((workspaceId) => {
-    setSelectedWorkspaceId(workspaceId);
-  }, []);
+    setSelectedWorkspaceId(normalizeWorkspaceId(workspaceId));
+  }, [normalizeWorkspaceId]);
 
   const value = useMemo(() => {
-    const selectedWorkspace = workspaces.find((item) => item.id === selectedWorkspaceId) ?? null;
+    const selectedWorkspace =
+      workspaces.find((item) => String(item.id) === selectedWorkspaceId) ?? null;
 
     return {
       workspaces,
@@ -61,9 +71,20 @@ export const WorkspaceProvider = ({ children }) => {
       selectedWorkspace,
       registerWorkspace,
       selectWorkspace,
-      hasWorkspaces: workspaces.length > 0
+      hasWorkspaces: workspaces.length > 0,
+      isLoading: loading,
+      workspaceError: error,
+      refreshWorkspaces: loadWorkspaces
     };
-  }, [registerWorkspace, selectWorkspace, selectedWorkspaceId, workspaces]);
+  }, [
+    error,
+    loadWorkspaces,
+    loading,
+    registerWorkspace,
+    selectWorkspace,
+    selectedWorkspaceId,
+    workspaces
+  ]);
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 };

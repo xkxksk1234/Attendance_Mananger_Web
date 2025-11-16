@@ -32,7 +32,7 @@ export const WorkspaceSelect = ({
           </option>
         )}
         {workspaces.map((workspace) => (
-          <option key={workspace.id} value={workspace.id}>
+          <option key={workspace.id} value={String(workspace.id)}>
             {workspace.name}
           </option>
         ))}

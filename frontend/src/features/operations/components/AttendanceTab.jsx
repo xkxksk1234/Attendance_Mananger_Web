@@ -1,10 +1,8 @@
 import { useWorkspace } from '../hooks/useWorkspace.js';
-import { useEmployees } from '../employees/hooks/useEmployees.js';
 import { AttendanceManagement } from '../attendance/components/AttendanceManagement.jsx';
 
 export const AttendanceTab = ({ tab }) => {
   const { hasWorkspaces, selectedWorkspace } = useWorkspace();
-  const { hasEmployees } = useEmployees();
 
   return (
     <section className="tab-panel attendance-panel" aria-live="polite">
@@ -24,15 +22,11 @@ export const AttendanceTab = ({ tab }) => {
             ))}
           </ul>
 
-          {hasEmployees ? (
-            <AttendanceManagement />
-          ) : (
-            <p className="attendance-empty">직원 등록 후 근태 기록을 관리할 수 있습니다.</p>
-          )}
+          <AttendanceManagement />
         </div>
       )}
 
-      <p className="tab-hint">근태 등록 · 수정 · 삭제는 로컬 상태로 관리되며, 나중에 백엔드 연동 시 확장될 예정입니다.</p>
+      <p className="tab-hint">근태 등록 · 수정 · 삭제 내역은 백엔드 MySQL DB와 연동되어 영구 저장됩니다.</p>
     </section>
   );
 };

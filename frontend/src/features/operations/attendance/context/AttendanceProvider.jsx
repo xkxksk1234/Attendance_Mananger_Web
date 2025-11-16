@@ -1,155 +1,128 @@
 import { useCallback, useMemo, useState } from 'react';
+import { attendanceApi } from '../../api/attendanceApi.js';
 import { useWorkspace } from '../../hooks/useWorkspace.js';
 import { AttendanceContext } from './AttendanceContext.js';
 
-const generateRecordId = () => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-
-  return `att-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-};
-
-const sortRecordsDesc = (records) => {
-  return [...records].sort((a, b) => {
-    const aDate = new Date(`${a.date}T${a.checkIn ?? '00:00'}`);
-    const bDate = new Date(`${b.date}T${b.checkIn ?? '00:00'}`);
-    return bDate.getTime() - aDate.getTime();
-  });
-};
+const buildLoadingKey = (workspaceId, employeeId) => `${workspaceId}:${employeeId}`;
 
 export const AttendanceProvider = ({ children }) => {
   const { selectedWorkspaceId } = useWorkspace();
   const [registry, setRegistry] = useState({});
+  const [loadingMap, setLoadingMap] = useState({});
+  const [errorMap, setErrorMap] = useState({});
 
-  const registerRecordForEmployee = useCallback((workspaceId, employeeId, input) => {
-    if (!workspaceId) {
-      throw new Error('워크스페이스를 선택한 후 근태 기록을 등록할 수 있습니다.');
+  const loadRecordsForEmployee = useCallback(async (workspaceId, employeeId) => {
+    if (!workspaceId || !employeeId) {
+      return [];
     }
 
-    if (!employeeId) {
-      throw new Error('직원을 선택한 후 근태 기록을 등록할 수 있습니다.');
-    }
+    const key = buildLoadingKey(workspaceId, employeeId);
+    setLoadingMap((prev) => ({ ...prev, [key]: true }));
 
-    const record = {
-      id: generateRecordId(),
-      employeeId,
-      ...input
-    };
-
-    setRegistry((prev) => {
-      const workspaceRecords = prev[workspaceId] ?? {};
-      const employeeRecords = workspaceRecords[employeeId] ?? [];
-      const nextEmployeeRecords = sortRecordsDesc([...employeeRecords, record]);
-
-      return {
+    try {
+      const records = await attendanceApi.fetchRecords(workspaceId, employeeId);
+      setRegistry((prev) => ({
         ...prev,
         [workspaceId]: {
-          ...workspaceRecords,
-          [employeeId]: nextEmployeeRecords
+          ...(prev[workspaceId] ?? {}),
+          [employeeId]: records
         }
-      };
-    });
-
-    return record;
+      }));
+      setErrorMap((prev) => ({ ...prev, [key]: null }));
+      return records;
+    } catch (error) {
+      console.error('근태 기록을 불러오는 중 오류가 발생했습니다.', error);
+      setErrorMap((prev) => ({ ...prev, [key]: '근태 기록을 불러오는 데 실패했습니다.' }));
+      return [];
+    } finally {
+      setLoadingMap((prev) => ({ ...prev, [key]: false }));
+    }
   }, []);
 
-  const updateRecordForEmployee = useCallback((workspaceId, employeeId, recordId, updates) => {
-    if (!workspaceId) {
-      throw new Error('워크스페이스를 선택한 후 근태 기록을 수정할 수 있습니다.');
-    }
-
-    if (!employeeId) {
-      throw new Error('직원을 선택한 후 근태 기록을 수정할 수 있습니다.');
-    }
-
-    let updatedRecord = null;
-
-    setRegistry((prev) => {
-      const workspaceRecords = prev[workspaceId] ?? {};
-      const employeeRecords = workspaceRecords[employeeId] ?? [];
-
-      if (employeeRecords.length === 0) {
-        return prev;
+  const registerRecordForEmployee = useCallback(
+    async (workspaceId, employeeId, input) => {
+      if (!workspaceId) {
+        throw new Error('워크스페이스를 선택한 후 근태 기록을 등록할 수 있습니다.');
       }
 
-      const nextEmployeeRecords = sortRecordsDesc(
-        employeeRecords.map((record) => {
-          if (record.id !== recordId) {
-            return record;
-          }
+      if (!employeeId) {
+        throw new Error('직원을 선택한 후 근태 기록을 등록할 수 있습니다.');
+      }
 
-          updatedRecord = { ...record, ...updates };
-          return updatedRecord;
-        })
-      );
-
-      return {
-        ...prev,
-        [workspaceId]: {
-          ...workspaceRecords,
-          [employeeId]: nextEmployeeRecords
-        }
-      };
-    });
-
-    return updatedRecord;
-  }, []);
-
-  const deleteRecordForEmployee = useCallback((workspaceId, employeeId, recordId) => {
-    if (!workspaceId) {
-      throw new Error('워크스페이스를 선택한 후 근태 기록을 삭제할 수 있습니다.');
-    }
-
-    if (!employeeId) {
-      throw new Error('직원을 선택한 후 근태 기록을 삭제할 수 있습니다.');
-    }
-
-    let removed = false;
-
-    setRegistry((prev) => {
-      const workspaceRecords = prev[workspaceId] ?? {};
-      const employeeRecords = workspaceRecords[employeeId] ?? [];
-      const nextEmployeeRecords = employeeRecords.filter((record) => {
-        if (record.id === recordId) {
-          removed = true;
-          return false;
-        }
-
-        return true;
+      const record = await attendanceApi.createRecord(workspaceId, {
+        ...input,
+        employeeId
       });
 
-      if (employeeRecords.length === nextEmployeeRecords.length) {
-        return prev;
+      await loadRecordsForEmployee(workspaceId, employeeId);
+
+      return record;
+    },
+    [loadRecordsForEmployee]
+  );
+
+  const updateRecordForEmployee = useCallback(
+    async (workspaceId, employeeId, recordId, updates) => {
+      if (!workspaceId || !employeeId) {
+        throw new Error('근태 기록을 수정하려면 워크스페이스와 직원을 선택하세요.');
       }
 
-      return {
-        ...prev,
-        [workspaceId]: {
-          ...workspaceRecords,
-          [employeeId]: nextEmployeeRecords
-        }
-      };
-    });
+      const record = await attendanceApi.updateRecord(workspaceId, recordId, updates);
+      await loadRecordsForEmployee(workspaceId, employeeId);
 
-    return removed;
-  }, []);
+      return record;
+    },
+    [loadRecordsForEmployee]
+  );
+
+  const deleteRecordForEmployee = useCallback(async (workspaceId, employeeId, recordId) => {
+    if (!workspaceId || !employeeId) {
+      throw new Error('근태 기록을 삭제하려면 워크스페이스와 직원을 선택하세요.');
+    }
+
+    await attendanceApi.deleteRecord(workspaceId, recordId);
+    await loadRecordsForEmployee(workspaceId, employeeId);
+
+    return true;
+  }, [loadRecordsForEmployee]);
 
   const value = useMemo(() => {
     const workspaceRecords = selectedWorkspaceId ? registry[selectedWorkspaceId] ?? {} : {};
 
+    const getRecordsForEmployee = (employeeId) => workspaceRecords[employeeId] ?? [];
+
     return {
-      getRecordsForEmployee: (employeeId) => workspaceRecords[employeeId] ?? [],
+      getRecordsForEmployee,
       registerRecord: (employeeId, input) =>
         registerRecordForEmployee(selectedWorkspaceId, employeeId, input),
       updateRecord: (employeeId, recordId, updates) =>
         updateRecordForEmployee(selectedWorkspaceId, employeeId, recordId, updates),
       removeRecord: (employeeId, recordId) =>
         deleteRecordForEmployee(selectedWorkspaceId, employeeId, recordId),
+      loadRecords: (employeeId) => loadRecordsForEmployee(selectedWorkspaceId, employeeId),
+      isLoadingRecords: (employeeId) => {
+        if (!selectedWorkspaceId || !employeeId) {
+          return false;
+        }
+
+        const key = buildLoadingKey(selectedWorkspaceId, employeeId);
+        return loadingMap[key] ?? false;
+      },
+      recordError: (employeeId) => {
+        if (!selectedWorkspaceId || !employeeId) {
+          return null;
+        }
+
+        const key = buildLoadingKey(selectedWorkspaceId, employeeId);
+        return errorMap[key] ?? null;
+      },
       hasRecords: Object.values(workspaceRecords).some((records) => (records?.length ?? 0) > 0)
     };
   }, [
     deleteRecordForEmployee,
+    errorMap,
+    loadRecordsForEmployee,
+    loadingMap,
     registerRecordForEmployee,
     registry,
     selectedWorkspaceId,

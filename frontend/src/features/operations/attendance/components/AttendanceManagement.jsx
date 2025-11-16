@@ -7,8 +7,16 @@ import { AttendanceRecordDetail } from './AttendanceRecordDetail.jsx';
 import { AttendanceSummary } from './AttendanceSummary.jsx';
 
 export const AttendanceManagement = () => {
-  const { employees } = useEmployees();
-  const { getRecordsForEmployee, registerRecord, updateRecord, removeRecord } = useAttendance();
+  const { employees, isLoading: employeesLoading } = useEmployees();
+  const {
+    getRecordsForEmployee,
+    registerRecord,
+    updateRecord,
+    removeRecord,
+    loadRecords,
+    isLoadingRecords,
+    recordError
+  } = useAttendance();
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -24,11 +32,16 @@ export const AttendanceManagement = () => {
     }
 
     setSelectedEmployeeId((prev) => {
-      return employees.some((employee) => employee.id === prev) ? prev : employees[0].id;
+      if (prev && employees.some((employee) => String(employee.id) === prev)) {
+        return prev;
+      }
+
+      return String(employees[0].id);
     });
   }, [employees]);
 
-  const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) ?? null;
+  const selectedEmployee =
+    employees.find((employee) => String(employee.id) === selectedEmployeeId) ?? null;
 
   const records = useMemo(() => {
     if (!selectedEmployeeId) {
@@ -37,6 +50,12 @@ export const AttendanceManagement = () => {
 
     return getRecordsForEmployee(selectedEmployeeId);
   }, [getRecordsForEmployee, selectedEmployeeId]);
+
+  useEffect(() => {
+    if (selectedEmployeeId) {
+      loadRecords(selectedEmployeeId);
+    }
+  }, [loadRecords, selectedEmployeeId]);
 
   const selectedRecord = useMemo(() => {
     return records.find((record) => record.id === selectedRecordId) ?? null;
@@ -65,7 +84,7 @@ export const AttendanceManagement = () => {
     setSelectedRecordId(record.id);
   };
 
-  const handleDeleteRecord = (record) => {
+  const handleDeleteRecord = async (record) => {
     const confirmed = window.confirm(
       `${selectedEmployee?.name ?? ''} 직원의 ${record.date} 근태 기록을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.`
     );
@@ -74,7 +93,12 @@ export const AttendanceManagement = () => {
       return;
     }
 
-    removeRecord(selectedEmployeeId, record.id);
+    try {
+      await removeRecord(selectedEmployeeId, record.id);
+    } catch (error) {
+      console.error('근태 기록을 삭제하는 중 오류가 발생했습니다.', error);
+      return;
+    }
 
     if (editingRecord?.id === record.id) {
       setEditingRecord(null);
@@ -86,21 +110,33 @@ export const AttendanceManagement = () => {
     }
   };
 
-  const handleSubmit = (formValues) => {
+  const handleSubmit = async (formValues) => {
     if (!selectedEmployeeId) {
       return;
     }
 
-    if (editingRecord) {
-      updateRecord(selectedEmployeeId, editingRecord.id, formValues);
-    } else {
-      registerRecord(selectedEmployeeId, formValues);
+    try {
+      if (editingRecord) {
+        await updateRecord(selectedEmployeeId, editingRecord.id, formValues);
+      } else {
+        await registerRecord(selectedEmployeeId, formValues);
+      }
+    } catch (error) {
+      console.error('근태 기록을 저장하는 중 오류가 발생했습니다.', error);
+      return;
     }
 
     setIsFormOpen(false);
     setEditingRecord(null);
     setSelectedRecordId(null);
   };
+
+  const isLoading = selectedEmployeeId ? isLoadingRecords(selectedEmployeeId) : false;
+  const error = selectedEmployeeId ? recordError(selectedEmployeeId) : null;
+
+  if (employeesLoading) {
+    return <p className="attendance-loading">직원 정보를 불러오는 중입니다...</p>;
+  }
 
   if (!employees.length) {
     return <p className="attendance-empty">직원 등록 후 근태 기록을 관리할 수 있습니다.</p>;
@@ -112,7 +148,7 @@ export const AttendanceManagement = () => {
         <label htmlFor="attendanceEmployeeSelect">근태 조회 직원</label>
         <select id="attendanceEmployeeSelect" value={selectedEmployeeId} onChange={handleSelectEmployee}>
           {employees.map((employee) => (
-            <option key={employee.id} value={employee.id}>
+            <option key={employee.id} value={String(employee.id)}>
               {employee.name} ({employee.emp_id})
             </option>
           ))}
@@ -141,6 +177,13 @@ export const AttendanceManagement = () => {
                 setEditingRecord(null);
               }}
             />
+          )}
+
+          {isLoading && <p className="attendance-loading">근태 기록을 불러오는 중입니다...</p>}
+          {error && !isLoading && (
+            <p className="attendance-error" role="alert">
+              {error}
+            </p>
           )}
 
           <AttendanceSummary records={records} employeeName={selectedEmployee.name} />

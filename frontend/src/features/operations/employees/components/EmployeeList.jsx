@@ -47,7 +47,7 @@ export const EmployeeList = ({
           </span>
         </div>
         {employees.map((employee) => {
-          const isSelected = selectedEmployeeId === employee.id;
+          const isSelected = selectedEmployeeId === String(employee.id);
 
           return (
             <div

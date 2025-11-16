@@ -8,10 +8,12 @@ const INITIAL_FORM_STATE = {
 };
 
 export const DashboardTab = ({ tab }) => {
-  const { selectedWorkspace, registerWorkspace, hasWorkspaces } = useWorkspace();
+  const { selectedWorkspace, registerWorkspace, hasWorkspaces, workspaceError } = useWorkspace();
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [formState, setFormState] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -30,9 +32,10 @@ export const DashboardTab = ({ tab }) => {
   const handleCancel = () => {
     setIsCreatingWorkspace(false);
     resetForm();
+    setSubmitError(null);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const trimmedName = formState.name.trim();
@@ -53,14 +56,24 @@ export const DashboardTab = ({ tab }) => {
       return;
     }
 
-    registerWorkspace({
-      name: trimmedName,
-      industry: trimmedIndustry,
-      underFive: formState.underFive
-    });
+    setSubmitting(true);
+    setSubmitError(null);
 
-    setIsCreatingWorkspace(false);
-    resetForm();
+    try {
+      await registerWorkspace({
+        name: trimmedName,
+        industry: trimmedIndustry,
+        underFive: formState.underFive
+      });
+
+      setIsCreatingWorkspace(false);
+      resetForm();
+    } catch (error) {
+      console.error('워크스페이스 등록 중 오류가 발생했습니다.', error);
+      setSubmitError('워크스페이스를 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -120,12 +133,22 @@ export const DashboardTab = ({ tab }) => {
             </div>
 
             <div className="workspace-form-actions">
-              <button type="submit">워크스페이스 등록</button>
-              <button type="button" className="button-secondary" onClick={handleCancel}>
+              <button type="submit" disabled={submitting}>
+                {submitting ? '등록 중...' : '워크스페이스 등록'}
+              </button>
+              <button type="button" className="button-secondary" onClick={handleCancel} disabled={submitting}>
                 취소
               </button>
             </div>
+
+            {submitError && <p className="workspace-error" role="alert">{submitError}</p>}
           </form>
+        )}
+
+        {workspaceError && !isCreatingWorkspace && (
+          <p className="workspace-error" role="alert">
+            {workspaceError}
+          </p>
         )}
 
         {!hasWorkspaces ? (

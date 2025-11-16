@@ -86,6 +86,22 @@
   text-align: center;
 }
 
+.employee-loading {
+  margin: 0;
+  color: #475569;
+  font-weight: 500;
+}
+
+.employee-error {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 12px;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
 .employee-list {
   background: #ffffff;
   border: 1px solid #e2e8f0;

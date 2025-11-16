@@ -1,0 +1,77 @@
+CREATE TABLE IF NOT EXISTS users (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL DEFAULT 'admin',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS workspaces (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  industry VARCHAR(150) NOT NULL,
+  under_five TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS workspace_roles (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  workspace_id INT UNSIGNED NOT NULL,
+  role_name VARCHAR(100) NOT NULL,
+  display_order INT NOT NULL DEFAULT 0,
+  CONSTRAINT fk_workspace_roles_workspace
+    FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS employees (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  workspace_id INT UNSIGNED NOT NULL,
+  emp_id INT UNSIGNED NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  rrn VARCHAR(14) NULL,
+  role VARCHAR(50) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  pay INT UNSIGNED NOT NULL,
+  bank_name VARCHAR(100) NULL,
+  bank_account VARCHAR(30) NULL,
+  address VARCHAR(255) NULL,
+  contract_date DATE NOT NULL,
+  expiration_date DATE NOT NULL,
+  memo VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_employees_workspace
+    FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS attendance_records (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  workspace_id INT UNSIGNED NOT NULL,
+  employee_id BIGINT UNSIGNED NOT NULL,
+  date DATE NOT NULL,
+  check_in TIME NULL,
+  check_out TIME NULL,
+  break_minutes INT UNSIGNED NOT NULL DEFAULT 0,
+  status VARCHAR(50) NOT NULL,
+  memo VARCHAR(255) NULL,
+  total_minutes INT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_attendance_workspace
+    FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_attendance_employee
+    FOREIGN KEY (employee_id) REFERENCES employees(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 샘플 관리자 계정 (비밀번호: admin123)
+INSERT INTO users (name, email, password_hash, role)
+VALUES (
+  '관리자',
+  'admin@example.com',
+  '$2a$10$X3ufADG7n2AFDzy83H8X7.s5m8SGvtQvECOH14R/2uOeGZ5ER5Yj2',
+  'admin'
+)
+ON DUPLICATE KEY UPDATE email = email;
