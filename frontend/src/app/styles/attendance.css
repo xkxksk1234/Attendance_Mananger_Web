@@ -211,7 +211,9 @@
 
 .attendance-col-actions {
   text-align: right;
-  min-width: 150px;
+  width: 1%;
+  min-width: 120px;
+  white-space: nowrap;
 }
 
 .attendance-col-actions .attendance-table-actions {
@@ -219,7 +221,8 @@
 }
 
 .attendance-col-memo {
-  width: auto;
+  width: 100%;
+  min-width: clamp(200px, 40vw, 520px);
   max-width: none;
   white-space: normal;
 }
