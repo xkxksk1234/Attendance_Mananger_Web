@@ -198,6 +198,11 @@
   gap: 0.5rem;
 }
 
+.attendance-col-date {
+  width: 1%;
+  white-space: nowrap;
+}
+
 .attendance-col-actions {
   text-align: right;
   min-width: 150px;
