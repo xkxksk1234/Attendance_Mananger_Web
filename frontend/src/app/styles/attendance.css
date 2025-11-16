@@ -166,7 +166,7 @@
 .attendance-table th,
 .attendance-table td {
   padding: 0.75rem 0.85rem;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
 }
@@ -187,10 +187,8 @@
 }
 
 .attendance-memo-cell {
-  max-width: 260px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 .attendance-table-actions {
   display: flex;
@@ -198,9 +196,17 @@
   gap: 0.5rem;
 }
 
-.attendance-col-date {
-  width: 1%;
+.attendance-col {
   white-space: nowrap;
+}
+
+.attendance-col-date,
+.attendance-col-check-in,
+.attendance-col-check-out,
+.attendance-col-total,
+.attendance-col-break,
+.attendance-col-status {
+  width: 1%;
 }
 
 .attendance-col-actions {
@@ -213,7 +219,9 @@
 }
 
 .attendance-col-memo {
-  max-width: 260px;
+  width: auto;
+  max-width: none;
+  white-space: normal;
 }
 
 @media (max-width: 1200px) {
