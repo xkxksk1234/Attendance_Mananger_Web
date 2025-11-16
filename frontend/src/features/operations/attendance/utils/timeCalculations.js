@@ -31,11 +31,33 @@ export const formatWorkDuration = (minutes) => {
   return `${hours}시간 ${remainder}분`;
 };
 
-export const formatDateLabel = (dateString) => {
+const buildLocalDate = (dateString) => {
   if (!dateString) {
-    return '';
+    return null;
   }
 
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', { weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit' });
+  const [year, month, day] = dateString.split('-').map(Number);
+
+  if ([year, month, day].some((part) => Number.isNaN(part))) {
+    return null;
+  }
+
+  // Use the local timezone so the rendered label always matches the saved calendar date
+  // regardless of the viewer's offset (prevents "-1 day" artifacts in some regions).
+  return new Date(year, month - 1, day);
+};
+
+export const formatDateLabel = (dateString) => {
+  const date = buildLocalDate(dateString);
+
+  if (!date) {
+    return dateString ?? '';
+  }
+
+  return date.toLocaleDateString('ko-KR', {
+    weekday: 'short',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
 };

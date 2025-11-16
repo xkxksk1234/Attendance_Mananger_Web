@@ -9,7 +9,16 @@ const formatDateValue = (value) => {
     return value.slice(0, 10);
   }
 
-  return value.toISOString().slice(0, 10);
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    // Normalize to the local calendar date instead of UTC to avoid "-1 day"
+    // conversions when the MySQL driver materializes DATE columns using the
+    // server timezone.
+    const offsetMinutes = value.getTimezoneOffset();
+    const normalized = new Date(value.getTime() - offsetMinutes * 60000);
+    return normalized.toISOString().slice(0, 10);
+  }
+
+  return String(value).slice(0, 10);
 };
 
 const formatTimeValue = (value) => {
