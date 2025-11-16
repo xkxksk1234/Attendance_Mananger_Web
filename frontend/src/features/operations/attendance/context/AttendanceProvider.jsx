@@ -86,48 +86,80 @@ export const AttendanceProvider = ({ children }) => {
     return true;
   }, [loadRecordsForEmployee]);
 
-  const value = useMemo(() => {
-    const storeRecords = selectedStoreId ? registry[selectedStoreId] ?? {} : {};
+  const storeRecords = selectedStoreId ? registry[selectedStoreId] ?? {} : {};
 
-    const getRecordsForEmployee = (employeeId) => storeRecords[employeeId] ?? [];
+  const getRecordsForEmployee = useCallback(
+    (employeeId) => storeRecords[employeeId] ?? [],
+    [storeRecords]
+  );
 
-    return {
+  const registerRecord = useCallback(
+    (employeeId, input) => registerRecordForEmployee(selectedStoreId, employeeId, input),
+    [registerRecordForEmployee, selectedStoreId]
+  );
+
+  const updateRecord = useCallback(
+    (employeeId, recordId, updates) =>
+      updateRecordForEmployee(selectedStoreId, employeeId, recordId, updates),
+    [selectedStoreId, updateRecordForEmployee]
+  );
+
+  const removeRecord = useCallback(
+    (employeeId, recordId) => deleteRecordForEmployee(selectedStoreId, employeeId, recordId),
+    [deleteRecordForEmployee, selectedStoreId]
+  );
+
+  const loadRecords = useCallback(
+    (employeeId) => loadRecordsForEmployee(selectedStoreId, employeeId),
+    [loadRecordsForEmployee, selectedStoreId]
+  );
+
+  const isLoadingRecords = useCallback(
+    (employeeId) => {
+      if (!selectedStoreId || !employeeId) {
+        return false;
+      }
+
+      const key = buildLoadingKey(selectedStoreId, employeeId);
+      return loadingMap[key] ?? false;
+    },
+    [loadingMap, selectedStoreId]
+  );
+
+  const recordError = useCallback(
+    (employeeId) => {
+      if (!selectedStoreId || !employeeId) {
+        return null;
+      }
+
+      const key = buildLoadingKey(selectedStoreId, employeeId);
+      return errorMap[key] ?? null;
+    },
+    [errorMap, selectedStoreId]
+  );
+
+  const value = useMemo(
+    () => ({
       getRecordsForEmployee,
-      registerRecord: (employeeId, input) =>
-        registerRecordForEmployee(selectedStoreId, employeeId, input),
-      updateRecord: (employeeId, recordId, updates) =>
-        updateRecordForEmployee(selectedStoreId, employeeId, recordId, updates),
-      removeRecord: (employeeId, recordId) =>
-        deleteRecordForEmployee(selectedStoreId, employeeId, recordId),
-      loadRecords: (employeeId) => loadRecordsForEmployee(selectedStoreId, employeeId),
-      isLoadingRecords: (employeeId) => {
-        if (!selectedStoreId || !employeeId) {
-          return false;
-        }
-
-        const key = buildLoadingKey(selectedStoreId, employeeId);
-        return loadingMap[key] ?? false;
-      },
-      recordError: (employeeId) => {
-        if (!selectedStoreId || !employeeId) {
-          return null;
-        }
-
-        const key = buildLoadingKey(selectedStoreId, employeeId);
-        return errorMap[key] ?? null;
-      },
+      registerRecord,
+      updateRecord,
+      removeRecord,
+      loadRecords,
+      isLoadingRecords,
+      recordError,
       hasRecords: Object.values(storeRecords).some((records) => (records?.length ?? 0) > 0)
-    };
-  }, [
-    deleteRecordForEmployee,
-    errorMap,
-    loadRecordsForEmployee,
-    loadingMap,
-    registerRecordForEmployee,
-    registry,
-    selectedStoreId,
-    updateRecordForEmployee
-  ]);
+    }),
+    [
+      getRecordsForEmployee,
+      registerRecord,
+      updateRecord,
+      removeRecord,
+      loadRecords,
+      isLoadingRecords,
+      recordError,
+      storeRecords
+    ]
+  );
 
   return <AttendanceContext.Provider value={value}>{children}</AttendanceContext.Provider>;
 };
