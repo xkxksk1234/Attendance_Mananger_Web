@@ -1,7 +1,7 @@
 import { getAttendanceStatusLabel } from '../constants/statusOptions.js';
 import { calculateWorkMinutes, formatDateLabel, formatWorkDuration } from '../utils/timeCalculations.js';
 
-export const AttendanceRecordList = ({ records, onEdit, onDelete }) => {
+export const AttendanceRecordList = ({ records, onEdit, onDelete, onSelect, selectedRecordId }) => {
   if (!records?.length) {
     return <p className="attendance-empty">아직 등록된 근태 기록이 없습니다. 새로운 기록을 추가해 주세요.</p>;
   }
@@ -44,9 +44,32 @@ export const AttendanceRecordList = ({ records, onEdit, onDelete }) => {
             const memoPreview = record.memo?.trim() ? record.memo : '-';
             const breakLabel = record.breakMinutes ? `${record.breakMinutes}분` : '0분';
             const totalLabel = formatWorkDuration(totalMinutes);
+            const isSelected = selectedRecordId === record.id;
+
+            const handleRowClick = () => {
+              if (typeof onSelect === 'function') {
+                onSelect(record);
+              }
+            };
+
+            const handleRowKeyDown = (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                handleRowClick();
+              }
+            };
 
             return (
-              <tr key={record.id}>
+              <tr
+                key={record.id}
+                className={isSelected ? 'attendance-row is-selected' : 'attendance-row'}
+                onClick={handleRowClick}
+                onKeyDown={handleRowKeyDown}
+                tabIndex={0}
+                role="button"
+                aria-pressed={isSelected}
+                title="근태 상세 정보를 보려면 클릭하세요."
+              >
                 <td className="attendance-col attendance-col-date">{formatDateLabel(record.date)}</td>
                 <td className="attendance-col attendance-col-check-in">{record.checkIn || '-'}</td>
                 <td className="attendance-col attendance-col-check-out">{record.checkOut || '-'}</td>
@@ -56,10 +79,24 @@ export const AttendanceRecordList = ({ records, onEdit, onDelete }) => {
                 <td className="attendance-col attendance-col-memo attendance-memo-cell">{memoPreview}</td>
                 <td className="attendance-col attendance-col-actions">
                   <div className="attendance-table-actions">
-                    <button type="button" className="button-tertiary" onClick={() => onEdit(record)}>
+                    <button
+                      type="button"
+                      className="button-tertiary"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEdit(record);
+                      }}
+                    >
                       수정
                     </button>
-                    <button type="button" className="button-danger" onClick={() => onDelete(record)}>
+                    <button
+                      type="button"
+                      className="button-danger"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDelete(record);
+                      }}
+                    >
                       삭제
                     </button>
                   </div>

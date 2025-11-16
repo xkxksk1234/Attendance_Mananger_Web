@@ -3,6 +3,7 @@ import { useEmployees } from '../../employees/hooks/useEmployees.js';
 import { useAttendance } from '../hooks/useAttendance.js';
 import { AttendanceRecordForm } from './AttendanceRecordForm.jsx';
 import { AttendanceRecordList } from './AttendanceRecordList.jsx';
+import { AttendanceRecordDetail } from './AttendanceRecordDetail.jsx';
 import { AttendanceSummary } from './AttendanceSummary.jsx';
 
 export const AttendanceManagement = () => {
@@ -11,12 +12,14 @@ export const AttendanceManagement = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
+  const [selectedRecordId, setSelectedRecordId] = useState(null);
 
   useEffect(() => {
     if (!employees.length) {
       setSelectedEmployeeId('');
       setIsFormOpen(false);
       setEditingRecord(null);
+      setSelectedRecordId(null);
       return;
     }
 
@@ -35,20 +38,31 @@ export const AttendanceManagement = () => {
     return getRecordsForEmployee(selectedEmployeeId);
   }, [getRecordsForEmployee, selectedEmployeeId]);
 
+  const selectedRecord = useMemo(() => {
+    return records.find((record) => record.id === selectedRecordId) ?? null;
+  }, [records, selectedRecordId]);
+
   const handleSelectEmployee = (event) => {
     setSelectedEmployeeId(event.target.value);
     setIsFormOpen(false);
     setEditingRecord(null);
+    setSelectedRecordId(null);
   };
 
   const handleCreateRequest = () => {
     setIsFormOpen(true);
     setEditingRecord(null);
+    setSelectedRecordId(null);
   };
 
   const handleEditRecord = (record) => {
     setIsFormOpen(true);
     setEditingRecord(record);
+    setSelectedRecordId(null);
+  };
+
+  const handleSelectRecord = (record) => {
+    setSelectedRecordId(record.id);
   };
 
   const handleDeleteRecord = (record) => {
@@ -66,6 +80,10 @@ export const AttendanceManagement = () => {
       setEditingRecord(null);
       setIsFormOpen(false);
     }
+
+    if (selectedRecordId === record.id) {
+      setSelectedRecordId(null);
+    }
   };
 
   const handleSubmit = (formValues) => {
@@ -81,6 +99,7 @@ export const AttendanceManagement = () => {
 
     setIsFormOpen(false);
     setEditingRecord(null);
+    setSelectedRecordId(null);
   };
 
   if (!employees.length) {
@@ -126,7 +145,24 @@ export const AttendanceManagement = () => {
 
           <AttendanceSummary records={records} employeeName={selectedEmployee.name} />
 
-          <AttendanceRecordList records={records} onEdit={handleEditRecord} onDelete={handleDeleteRecord} />
+          <AttendanceRecordList
+            records={records}
+            onEdit={handleEditRecord}
+            onDelete={handleDeleteRecord}
+            onSelect={handleSelectRecord}
+            selectedRecordId={selectedRecordId}
+          />
+
+          {selectedRecord && (
+            <AttendanceRecordDetail
+              record={selectedRecord}
+              employeeName={selectedEmployee.name}
+              employeeNumber={selectedEmployee.emp_id}
+              onClose={() => setSelectedRecordId(null)}
+              onEdit={() => handleEditRecord(selectedRecord)}
+              onDelete={() => handleDeleteRecord(selectedRecord)}
+            />
+          )}
         </>
       ) : (
         <p className="attendance-empty">직원을 선택하면 근태 기록이 여기에 표시됩니다.</p>

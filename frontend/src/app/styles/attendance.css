@@ -149,6 +149,85 @@
   font-weight: 700;
 }
 
+.attendance-detail {
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  background: #fff;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.attendance-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.attendance-detail-header h3 {
+  margin: 0 0 0.3rem;
+}
+
+.attendance-detail-header p {
+  margin: 0;
+  color: #475569;
+}
+
+.attendance-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 1rem;
+}
+
+.attendance-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.attendance-detail-label {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.attendance-detail-value {
+  margin: 0;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.attendance-detail-memo {
+  border: 1px dashed #cbd5f5;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #f8fafc;
+}
+
+.attendance-detail-memo-label {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.attendance-detail-memo-value {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #0f172a;
+}
+
+.attendance-detail-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .attendance-table-wrapper {
   background: #fff;
   border: 1px solid #e2e8f0;
@@ -169,6 +248,20 @@
   text-align: center;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
+}
+
+.attendance-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.attendance-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.attendance-row.is-selected {
+  background: #eef2ff;
+  box-shadow: inset 0 0 0 1px #c7d2fe;
 }
 
 .attendance-table th {
@@ -311,6 +404,26 @@
   }
 
   .attendance-table-actions button {
+    width: 100%;
+  }
+
+  .attendance-detail {
+    padding: 1rem;
+  }
+
+  .attendance-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-detail-memo {
+    padding: 0.75rem;
+  }
+
+  .attendance-detail-actions {
+    flex-direction: column;
+  }
+
+  .attendance-detail-actions button {
     width: 100%;
   }
 }
