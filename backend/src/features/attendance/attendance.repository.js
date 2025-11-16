@@ -30,7 +30,7 @@ const formatTimeValue = (value) => {
 
 const mapRecord = (row) => ({
   id: Number(row.id),
-  workspaceId: row.workspace_id,
+  storeId: row.store_id,
   employeeId: Number(row.employee_id),
   date: formatDateValue(row.date),
   checkIn: formatTimeValue(row.check_in),
@@ -42,42 +42,42 @@ const mapRecord = (row) => ({
 });
 
 export const attendanceRepository = {
-  async findByEmployee(workspaceId, employeeId) {
-    if (!workspaceId || !employeeId) {
+  async findByEmployee(storeId, employeeId) {
+    if (!storeId || !employeeId) {
       return [];
     }
 
     const rows = await db.query(
       `SELECT *
        FROM attendance_records
-       WHERE workspace_id = ? AND employee_id = ?
+       WHERE store_id = ? AND employee_id = ?
        ORDER BY date DESC, id DESC`,
-      [workspaceId, employeeId]
+      [storeId, employeeId]
     );
 
     return rows.map(mapRecord);
   },
 
-  async findById(workspaceId, recordId) {
-    if (!workspaceId || !recordId) {
+  async findById(storeId, recordId) {
+    if (!storeId || !recordId) {
       return null;
     }
 
     const rows = await db.query(
       `SELECT *
        FROM attendance_records
-       WHERE workspace_id = ? AND id = ?
+       WHERE store_id = ? AND id = ?
        LIMIT 1`,
-      [workspaceId, recordId]
+      [storeId, recordId]
     );
 
     return rows.length ? mapRecord(rows[0]) : null;
   },
 
-  async create(workspaceId, employeeId, payload) {
+  async create(storeId, employeeId, payload) {
     const [result] = await db.pool.execute(
       `INSERT INTO attendance_records (
-         workspace_id,
+         store_id,
          employee_id,
          date,
          check_in,
@@ -88,7 +88,7 @@ export const attendanceRepository = {
          total_minutes
        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        workspaceId,
+        storeId,
         employeeId,
         payload.date,
         payload.checkIn || null,
@@ -100,10 +100,10 @@ export const attendanceRepository = {
       ]
     );
 
-    return this.findById(workspaceId, result.insertId);
+    return this.findById(storeId, result.insertId);
   },
 
-  async update(workspaceId, recordId, payload) {
+  async update(storeId, recordId, payload) {
     const [result] = await db.pool.execute(
       `UPDATE attendance_records
        SET date = ?,
@@ -113,7 +113,7 @@ export const attendanceRepository = {
            status = ?,
            memo = ?,
            total_minutes = ?
-       WHERE workspace_id = ? AND id = ?`,
+       WHERE store_id = ? AND id = ?`,
       [
         payload.date,
         payload.checkIn || null,
@@ -122,7 +122,7 @@ export const attendanceRepository = {
         payload.status,
         payload.memo || null,
         payload.totalMinutes ?? 0,
-        workspaceId,
+        storeId,
         recordId
       ]
     );
@@ -131,14 +131,14 @@ export const attendanceRepository = {
       return null;
     }
 
-    return this.findById(workspaceId, recordId);
+    return this.findById(storeId, recordId);
   },
 
-  async delete(workspaceId, recordId) {
+  async delete(storeId, recordId) {
     const [result] = await db.pool.execute(
       `DELETE FROM attendance_records
-       WHERE workspace_id = ? AND id = ?`,
-      [workspaceId, recordId]
+       WHERE store_id = ? AND id = ?`,
+      [storeId, recordId]
     );
 
     return result.affectedRows > 0;

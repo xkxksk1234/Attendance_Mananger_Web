@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS workspaces (
+CREATE TABLE IF NOT EXISTS stores (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
   industry VARCHAR(150) NOT NULL,
@@ -15,19 +15,19 @@ CREATE TABLE IF NOT EXISTS workspaces (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS workspace_roles (
+CREATE TABLE IF NOT EXISTS store_roles (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  workspace_id INT UNSIGNED NOT NULL,
+  store_id INT UNSIGNED NOT NULL,
   role_name VARCHAR(100) NOT NULL,
   display_order INT NOT NULL DEFAULT 0,
-  CONSTRAINT fk_workspace_roles_workspace
-    FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+  CONSTRAINT fk_store_roles_store
+    FOREIGN KEY (store_id) REFERENCES stores(id)
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS employees (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  workspace_id INT UNSIGNED NOT NULL,
+  store_id INT UNSIGNED NOT NULL,
   emp_id INT UNSIGNED NOT NULL,
   name VARCHAR(100) NOT NULL,
   rrn VARCHAR(14) NULL,
@@ -41,14 +41,14 @@ CREATE TABLE IF NOT EXISTS employees (
   expiration_date DATE NOT NULL,
   memo VARCHAR(255) NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_employees_workspace
-    FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+  CONSTRAINT fk_employees_store
+    FOREIGN KEY (store_id) REFERENCES stores(id)
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS attendance_records (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  workspace_id INT UNSIGNED NOT NULL,
+  store_id INT UNSIGNED NOT NULL,
   employee_id BIGINT UNSIGNED NOT NULL,
   date DATE NOT NULL,
   check_in TIME NULL,
@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS attendance_records (
   memo VARCHAR(255) NULL,
   total_minutes INT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_attendance_workspace
-    FOREIGN KEY (workspace_id) REFERENCES workspaces(id)
+  CONSTRAINT fk_attendance_store
+    FOREIGN KEY (store_id) REFERENCES stores(id)
     ON DELETE CASCADE,
   CONSTRAINT fk_attendance_employee
     FOREIGN KEY (employee_id) REFERENCES employees(id)

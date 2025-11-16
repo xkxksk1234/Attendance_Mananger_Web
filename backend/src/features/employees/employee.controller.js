@@ -1,19 +1,19 @@
 import { employeeService } from './employee.service.js';
 
-const parseWorkspaceId = (value) => {
+const parseStoreId = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 };
 
 export const listEmployees = async (req, res, next) => {
   try {
-    const workspaceId = parseWorkspaceId(req.params.workspaceId);
+    const storeId = parseStoreId(req.params.storeId);
 
-    if (!workspaceId) {
-      return res.status(400).json({ message: '유효한 워크스페이스 ID가 필요합니다.' });
+    if (!storeId) {
+      return res.status(400).json({ message: '유효한 매장 ID가 필요합니다.' });
     }
 
-    const employees = await employeeService.listEmployees(workspaceId);
+    const employees = await employeeService.listEmployees(storeId);
     return res.json({ employees });
   } catch (error) {
     return next(error);
@@ -22,10 +22,10 @@ export const listEmployees = async (req, res, next) => {
 
 export const createEmployee = async (req, res, next) => {
   try {
-    const workspaceId = parseWorkspaceId(req.params.workspaceId);
+    const storeId = parseStoreId(req.params.storeId);
 
-    if (!workspaceId) {
-      return res.status(400).json({ message: '유효한 워크스페이스 ID가 필요합니다.' });
+    if (!storeId) {
+      return res.status(400).json({ message: '유효한 매장 ID가 필요합니다.' });
     }
 
     const requiredFields = ['emp_id', 'name', 'role', 'phone', 'pay', 'contract_date', 'expiration_date'];
@@ -35,7 +35,7 @@ export const createEmployee = async (req, res, next) => {
       return res.status(400).json({ message: '필수 입력 항목을 모두 채워주세요.' });
     }
 
-    const employee = await employeeService.createEmployee(workspaceId, req.body);
+    const employee = await employeeService.createEmployee(storeId, req.body);
     return res.status(201).json({ employee });
   } catch (error) {
     return next(error);
@@ -44,14 +44,14 @@ export const createEmployee = async (req, res, next) => {
 
 export const updateEmployee = async (req, res, next) => {
   try {
-    const workspaceId = parseWorkspaceId(req.params.workspaceId);
+    const storeId = parseStoreId(req.params.storeId);
     const employeeId = Number(req.params.employeeId);
 
-    if (!workspaceId || !employeeId) {
+    if (!storeId || !employeeId) {
       return res.status(400).json({ message: '유효한 식별자를 전달해 주세요.' });
     }
 
-    const employee = await employeeService.updateEmployee(workspaceId, employeeId, req.body);
+    const employee = await employeeService.updateEmployee(storeId, employeeId, req.body);
 
     if (!employee) {
       return res.status(404).json({ message: '해당 직원을 찾을 수 없습니다.' });
@@ -65,14 +65,14 @@ export const updateEmployee = async (req, res, next) => {
 
 export const deleteEmployee = async (req, res, next) => {
   try {
-    const workspaceId = parseWorkspaceId(req.params.workspaceId);
+    const storeId = parseStoreId(req.params.storeId);
     const employeeId = Number(req.params.employeeId);
 
-    if (!workspaceId || !employeeId) {
+    if (!storeId || !employeeId) {
       return res.status(400).json({ message: '유효한 식별자를 전달해 주세요.' });
     }
 
-    const removed = await employeeService.deleteEmployee(workspaceId, employeeId);
+    const removed = await employeeService.deleteEmployee(storeId, employeeId);
 
     if (!removed) {
       return res.status(404).json({ message: '삭제할 직원을 찾을 수 없습니다.' });

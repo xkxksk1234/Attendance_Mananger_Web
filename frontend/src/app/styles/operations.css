@@ -111,8 +111,8 @@ button.tab-button.active {
   align-items: flex-end;
 }
 
-.workspace-active-hint,
-.workspace-empty-hint {
+.store-active-hint,
+.store-empty-hint {
   margin: 0;
   padding: 0.75rem 1rem;
   border-radius: 12px;
@@ -120,7 +120,7 @@ button.tab-button.active {
   flex: 1 1 220px;
 }
 
-.workspace-loading {
+.store-loading {
   margin: 0;
   padding: 0.75rem 1rem;
   border-radius: 12px;
@@ -129,12 +129,12 @@ button.tab-button.active {
   font-weight: 600;
 }
 
-.workspace-active-hint {
+.store-active-hint {
   background: #eef2ff;
   color: #1e3a8a;
 }
 
-.workspace-empty-hint {
+.store-empty-hint {
   background: #eff6ff;
   color: #1d4ed8;
 }

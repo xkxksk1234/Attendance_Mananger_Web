@@ -1,32 +1,32 @@
 import { httpClient } from '../../../shared/api/httpClient.js';
 
-const basePath = '/api/workspaces';
+const basePath = '/api/stores';
 
 export const employeeApi = {
-  async fetchEmployees(workspaceId) {
-    if (!workspaceId) {
+  async fetchEmployees(storeId) {
+    if (!storeId) {
       return [];
     }
 
-    const { data } = await httpClient.get(`${basePath}/${workspaceId}/employees`);
+    const { data } = await httpClient.get(`${basePath}/${storeId}/employees`);
     return data.employees ?? [];
   },
 
-  async createEmployee(workspaceId, payload) {
-    const { data } = await httpClient.post(`${basePath}/${workspaceId}/employees`, payload);
+  async createEmployee(storeId, payload) {
+    const { data } = await httpClient.post(`${basePath}/${storeId}/employees`, payload);
     return data.employee;
   },
 
-  async updateEmployee(workspaceId, employeeId, payload) {
+  async updateEmployee(storeId, employeeId, payload) {
     const { data } = await httpClient.put(
-      `${basePath}/${workspaceId}/employees/${employeeId}`,
+      `${basePath}/${storeId}/employees/${employeeId}`,
       payload
     );
     return data.employee;
   },
 
-  async deleteEmployee(workspaceId, employeeId) {
-    await httpClient.delete(`${basePath}/${workspaceId}/employees/${employeeId}`);
+  async deleteEmployee(storeId, employeeId) {
+    await httpClient.delete(`${basePath}/${storeId}/employees/${employeeId}`);
     return true;
   }
 };

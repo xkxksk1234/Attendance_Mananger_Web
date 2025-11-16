@@ -1,16 +1,16 @@
 import { EmployeeManagement } from '../employees/components/EmployeeManagement.jsx';
-import { useWorkspace } from '../hooks/useWorkspace.js';
+import { useStore } from '../hooks/useStore.js';
 
 export const EmployeesTab = ({ tab }) => {
-  const { hasWorkspaces } = useWorkspace();
+  const { hasStores } = useStore();
 
   return (
     <section className="tab-panel" aria-live="polite">
       <h2>{tab.label}</h2>
       <p className="tab-description">{tab.description}</p>
 
-      {!hasWorkspaces ? (
-        <p className="workspace-empty">워크스페이스를 먼저 등록하세요.</p>
+      {!hasStores ? (
+        <p className="store-empty">매장을 먼저 등록하세요.</p>
       ) : (
         <>
           <EmployeeManagement />

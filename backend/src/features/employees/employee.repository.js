@@ -14,7 +14,7 @@ const formatDateValue = (value) => {
 
 const mapEmployee = (row) => ({
   id: row.id,
-  workspaceId: row.workspace_id,
+  storeId: row.store_id,
   emp_id: Number(row.emp_id),
   name: row.name,
   rrn: row.rrn,
@@ -30,42 +30,42 @@ const mapEmployee = (row) => ({
 });
 
 export const employeeRepository = {
-  async findByWorkspace(workspaceId) {
-    if (!workspaceId) {
+  async findByStore(storeId) {
+    if (!storeId) {
       return [];
     }
 
     const rows = await db.query(
       `SELECT *
        FROM employees
-       WHERE workspace_id = ?
+       WHERE store_id = ?
        ORDER BY created_at DESC, id DESC`,
-      [workspaceId]
+      [storeId]
     );
 
     return rows.map(mapEmployee);
   },
 
-  async findById(workspaceId, employeeId) {
-    if (!workspaceId || !employeeId) {
+  async findById(storeId, employeeId) {
+    if (!storeId || !employeeId) {
       return null;
     }
 
     const rows = await db.query(
       `SELECT *
        FROM employees
-       WHERE workspace_id = ? AND id = ?
+       WHERE store_id = ? AND id = ?
        LIMIT 1`,
-      [workspaceId, employeeId]
+      [storeId, employeeId]
     );
 
     return rows.length ? mapEmployee(rows[0]) : null;
   },
 
-  async create(workspaceId, payload) {
+  async create(storeId, payload) {
     const [result] = await db.pool.execute(
       `INSERT INTO employees (
-         workspace_id,
+         store_id,
          emp_id,
          name,
          rrn,
@@ -80,7 +80,7 @@ export const employeeRepository = {
          memo
        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        workspaceId,
+        storeId,
         payload.emp_id,
         payload.name,
         payload.rrn || null,
@@ -96,10 +96,10 @@ export const employeeRepository = {
       ]
     );
 
-    return this.findById(workspaceId, result.insertId);
+    return this.findById(storeId, result.insertId);
   },
 
-  async update(workspaceId, employeeId, payload) {
+  async update(storeId, employeeId, payload) {
     const [result] = await db.pool.execute(
       `UPDATE employees
        SET emp_id = ?,
@@ -114,7 +114,7 @@ export const employeeRepository = {
            contract_date = ?,
            expiration_date = ?,
            memo = ?
-       WHERE workspace_id = ? AND id = ?`,
+       WHERE store_id = ? AND id = ?`,
       [
         payload.emp_id,
         payload.name,
@@ -128,7 +128,7 @@ export const employeeRepository = {
         payload.contract_date,
         payload.expiration_date,
         payload.memo || null,
-        workspaceId,
+        storeId,
         employeeId
       ]
     );
@@ -137,13 +137,13 @@ export const employeeRepository = {
       return null;
     }
 
-    return this.findById(workspaceId, employeeId);
+    return this.findById(storeId, employeeId);
   },
 
-  async delete(workspaceId, employeeId) {
+  async delete(storeId, employeeId) {
     const [result] = await db.pool.execute(
-      `DELETE FROM employees WHERE workspace_id = ? AND id = ?`,
-      [workspaceId, employeeId]
+      `DELETE FROM employees WHERE store_id = ? AND id = ?`,
+      [storeId, employeeId]
     );
 
     return result.affectedRows > 0;

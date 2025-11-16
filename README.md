@@ -1,6 +1,6 @@
 # Attendance Manager Web
 
-근태관리 프로그램의 초기 버전입니다. Express 기반의 백엔드와 React(Vite) 기반의 프론트엔드를 포함하고 있으며, JWT를 활용한 로그인 및 세션 유지 기능을 제공합니다. 2025년 이후 기능 확장을 염두에 두고 백엔드와 프론트엔드를 도메인 별 패키지 구조로 리팩토링했으며, 현재 워크스페이스/직원/출퇴근 데이터는 MySQL에 영구 저장됩니다.
+근태관리 프로그램의 초기 버전입니다. Express 기반의 백엔드와 React(Vite) 기반의 프론트엔드를 포함하고 있으며, JWT를 활용한 로그인 및 세션 유지 기능을 제공합니다. 2025년 이후 기능 확장을 염두에 두고 백엔드와 프론트엔드를 도메인 별 패키지 구조로 리팩토링했으며, 현재 매장/직원/출퇴근 데이터는 MySQL에 영구 저장됩니다.
 
 ## 프로젝트 구조
 
@@ -17,7 +17,7 @@
 │       └── features
 │           ├── auth                # 인증 도메인 (컨트롤러, 서비스, 리포지토리 등)
 │           ├── health              # 헬스체크 라우터
-│           ├── workspaces          # 워크스페이스 및 직급 관리
+│           ├── stores          # 매장 및 직급 관리
 │           ├── employees           # 직원 CRUD API
 │           └── attendance          # 출퇴근 기록 API
 │   └── sql
@@ -71,7 +71,7 @@ cp frontend/.env.example frontend/.env
 
 ## 데이터베이스 초기화
 
-백엔드는 MySQL 8 이상을 사용하여 워크스페이스, 직원, 출퇴근 데이터를 영구 저장합니다.
+백엔드는 MySQL 8 이상을 사용하여 매장, 직원, 출퇴근 데이터를 영구 저장합니다.
 
 1. MySQL 서버를 설치하고 실행합니다.
 2. 예시와 같이 데이터베이스 및 전용 계정을 생성합니다.
@@ -111,16 +111,16 @@ npm run dev
 | `POST` | `/api/auth/login` | 사용자 로그인 및 세션 발급 |
 | `GET` | `/api/auth/session` | 현재 로그인 세션 조회 |
 | `POST` | `/api/auth/logout` | 세션 만료 및 쿠키 삭제 |
-| `GET` | `/api/workspaces` | 로그인한 사용자의 워크스페이스 목록 조회 |
-| `POST` | `/api/workspaces` | 워크스페이스 생성 및 기본 직급 등록 |
-| `GET` | `/api/workspaces/:workspaceId/employees` | 워크스페이스별 직원 목록 조회 |
-| `POST` | `/api/workspaces/:workspaceId/employees` | 직원 등록 |
-| `PUT` | `/api/workspaces/:workspaceId/employees/:employeeId` | 직원 정보 수정 |
-| `DELETE` | `/api/workspaces/:workspaceId/employees/:employeeId` | 직원 삭제 |
-| `GET` | `/api/workspaces/:workspaceId/attendance?employeeId=...` | 직원별 근태 기록 조회 |
-| `POST` | `/api/workspaces/:workspaceId/attendance` | 근태 기록 등록 |
-| `PUT` | `/api/workspaces/:workspaceId/attendance/:recordId` | 근태 기록 수정 |
-| `DELETE` | `/api/workspaces/:workspaceId/attendance/:recordId` | 근태 기록 삭제 |
+| `GET` | `/api/stores` | 로그인한 사용자의 매장 목록 조회 |
+| `POST` | `/api/stores` | 매장 생성 및 기본 직급 등록 |
+| `GET` | `/api/stores/:storeId/employees` | 매장별 직원 목록 조회 |
+| `POST` | `/api/stores/:storeId/employees` | 직원 등록 |
+| `PUT` | `/api/stores/:storeId/employees/:employeeId` | 직원 정보 수정 |
+| `DELETE` | `/api/stores/:storeId/employees/:employeeId` | 직원 삭제 |
+| `GET` | `/api/stores/:storeId/attendance?employeeId=...` | 직원별 근태 기록 조회 |
+| `POST` | `/api/stores/:storeId/attendance` | 근태 기록 등록 |
+| `PUT` | `/api/stores/:storeId/attendance/:recordId` | 근태 기록 수정 |
+| `DELETE` | `/api/stores/:storeId/attendance/:recordId` | 근태 기록 삭제 |
 
 ### 2. 프론트엔드 (React)
 
@@ -132,7 +132,7 @@ npm install
 npm run dev
 ```
 
-프론트엔드는 기본적으로 `http://localhost:5173`에서 실행되며, 페이지 로드 시 기존 세션이 있는 경우 자동으로 로그인 상태를 복원합니다. `src/features/auth` 디렉터리에 인증 관련 API 모듈과 컨텍스트, UI 컴포넌트가 분리되어 있으므로 향후 기능 추가 시 손쉽게 확장할 수 있습니다. 워크스페이스 · 직원 · 출퇴근 탭은 `httpClient`를 통해 백엔드 REST API를 호출하므로 브라우저 새로 고침 이후에도 모든 데이터가 유지됩니다.
+프론트엔드는 기본적으로 `http://localhost:5173`에서 실행되며, 페이지 로드 시 기존 세션이 있는 경우 자동으로 로그인 상태를 복원합니다. `src/features/auth` 디렉터리에 인증 관련 API 모듈과 컨텍스트, UI 컴포넌트가 분리되어 있으므로 향후 기능 추가 시 손쉽게 확장할 수 있습니다. 매장 · 직원 · 출퇴근 탭은 `httpClient`를 통해 백엔드 REST API를 호출하므로 브라우저 새로 고침 이후에도 모든 데이터가 유지됩니다.
 
 ## 테스트 계정
 

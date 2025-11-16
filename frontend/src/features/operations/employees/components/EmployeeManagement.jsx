@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useEmployees } from '../hooks/useEmployees.js';
-import { useWorkspace } from '../../hooks/useWorkspace.js';
-import { DEFAULT_WORKSPACE_ROLES } from '../../constants/workspaceDefaults.js';
+import { useStore } from '../../hooks/useStore.js';
+import { DEFAULT_STORE_ROLES } from '../../constants/storeDefaults.js';
 import { EmployeeForm } from './EmployeeForm.jsx';
 import { EmployeeList } from './EmployeeList.jsx';
 import { EmployeeDetailPanel } from './EmployeeDetailPanel.jsx';
 
 export const EmployeeManagement = () => {
   const { employees, removeEmployee, isLoading, error } = useEmployees();
-  const { selectedWorkspace } = useWorkspace();
+  const { selectedStore } = useStore();
   const [formState, setFormState] = useState({ visible: false, employee: null });
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
 
-  const availableRoles = selectedWorkspace?.roles?.length
-    ? selectedWorkspace.roles
-    : DEFAULT_WORKSPACE_ROLES;
+  const availableRoles = selectedStore?.roles?.length
+    ? selectedStore.roles
+    : DEFAULT_STORE_ROLES;
 
   const showForm = formState.visible;
   const editingEmployee = formState.employee;
@@ -100,10 +100,10 @@ export const EmployeeManagement = () => {
     <div className="employee-management">
       <div className="employee-management-header">
         <div>
-          <h3>선택된 워크스페이스</h3>
+          <h3>선택된 매장</h3>
           <p>
-            <strong>{selectedWorkspace?.name ?? '선택되지 않음'}</strong>
-            {selectedWorkspace?.industry ? ` · 업종: ${selectedWorkspace.industry}` : ''}
+            <strong>{selectedStore?.name ?? '선택되지 않음'}</strong>
+            {selectedStore?.industry ? ` · 업종: ${selectedStore.industry}` : ''}
           </p>
         </div>
         <button type="button" onClick={handlePrimaryButtonClick}>

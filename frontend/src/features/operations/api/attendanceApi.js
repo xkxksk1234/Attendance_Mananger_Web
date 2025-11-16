@@ -1,35 +1,35 @@
 import { httpClient } from '../../../shared/api/httpClient.js';
 
-const basePath = '/api/workspaces';
+const basePath = '/api/stores';
 
 export const attendanceApi = {
-  async fetchRecords(workspaceId, employeeId) {
-    if (!workspaceId || !employeeId) {
+  async fetchRecords(storeId, employeeId) {
+    if (!storeId || !employeeId) {
       return [];
     }
 
     const { data } = await httpClient.get(
-      `${basePath}/${workspaceId}/attendance`,
+      `${basePath}/${storeId}/attendance`,
       { params: { employeeId } }
     );
     return data.records ?? [];
   },
 
-  async createRecord(workspaceId, payload) {
-    const { data } = await httpClient.post(`${basePath}/${workspaceId}/attendance`, payload);
+  async createRecord(storeId, payload) {
+    const { data } = await httpClient.post(`${basePath}/${storeId}/attendance`, payload);
     return data.record;
   },
 
-  async updateRecord(workspaceId, recordId, payload) {
+  async updateRecord(storeId, recordId, payload) {
     const { data } = await httpClient.put(
-      `${basePath}/${workspaceId}/attendance/${recordId}`,
+      `${basePath}/${storeId}/attendance/${recordId}`,
       payload
     );
     return data.record;
   },
 
-  async deleteRecord(workspaceId, recordId) {
-    await httpClient.delete(`${basePath}/${workspaceId}/attendance/${recordId}`);
+  async deleteRecord(storeId, recordId) {
+    await httpClient.delete(`${basePath}/${storeId}/attendance/${recordId}`);
     return true;
   }
 };

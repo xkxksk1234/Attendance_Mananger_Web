@@ -1,15 +1,15 @@
-import { workspaceService } from './workspace.service.js';
+import { storeService } from './store.service.js';
 
-export const listWorkspaces = async (_req, res, next) => {
+export const listStores = async (_req, res, next) => {
   try {
-    const workspaces = await workspaceService.listWorkspaces();
-    return res.json({ workspaces });
+    const stores = await storeService.listStores();
+    return res.json({ stores });
   } catch (error) {
     return next(error);
   }
 };
 
-export const createWorkspace = async (req, res, next) => {
+export const createStore = async (req, res, next) => {
   try {
     const { name, industry, underFive, roles } = req.body ?? {};
 
@@ -17,14 +17,14 @@ export const createWorkspace = async (req, res, next) => {
       return res.status(400).json({ message: '매장명과 업종을 입력해 주세요.' });
     }
 
-    const workspace = await workspaceService.createWorkspace({
+    const store = await storeService.createStore({
       name,
       industry,
       underFive,
       roles
     });
 
-    return res.status(201).json({ workspace });
+    return res.status(201).json({ store });
   } catch (error) {
     return next(error);
   }

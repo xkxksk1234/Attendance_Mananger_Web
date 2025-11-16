@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useWorkspace } from '../hooks/useWorkspace.js';
+import { useStore } from '../hooks/useStore.js';
 
 const INITIAL_FORM_STATE = {
   name: '',
@@ -8,8 +8,8 @@ const INITIAL_FORM_STATE = {
 };
 
 export const DashboardTab = ({ tab }) => {
-  const { selectedWorkspace, registerWorkspace, hasWorkspaces, workspaceError } = useWorkspace();
-  const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
+  const { selectedStore, registerStore, hasStores, storeError } = useStore();
+  const [isCreatingStore, setIsCreatingStore] = useState(false);
   const [formState, setFormState] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -30,7 +30,7 @@ export const DashboardTab = ({ tab }) => {
   };
 
   const handleCancel = () => {
-    setIsCreatingWorkspace(false);
+    setIsCreatingStore(false);
     resetForm();
     setSubmitError(null);
   };
@@ -60,17 +60,17 @@ export const DashboardTab = ({ tab }) => {
     setSubmitError(null);
 
     try {
-      await registerWorkspace({
+      await registerStore({
         name: trimmedName,
         industry: trimmedIndustry,
         underFive: formState.underFive
       });
 
-      setIsCreatingWorkspace(false);
+      setIsCreatingStore(false);
       resetForm();
     } catch (error) {
-      console.error('워크스페이스 등록 중 오류가 발생했습니다.', error);
-      setSubmitError('워크스페이스를 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      console.error('매장 등록 중 오류가 발생했습니다.', error);
+      setSubmitError('매장을 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setSubmitting(false);
     }
@@ -78,26 +78,26 @@ export const DashboardTab = ({ tab }) => {
 
   return (
     <section className="tab-panel" aria-live="polite">
-      <div className="workspace-dashboard">
-        <div className="workspace-actions">
-          <div className="workspace-intro">
+      <div className="store-dashboard">
+        <div className="store-actions">
+          <div className="store-intro">
             <h2>{tab.label}</h2>
             <p className="tab-description">{tab.description}</p>
           </div>
 
           <button
             type="button"
-            className="workspace-create-button"
-            onClick={() => setIsCreatingWorkspace(true)}
+            className="store-create-button"
+            onClick={() => setIsCreatingStore(true)}
           >
-            워크스페이스 만들기
+            매장 만들기
           </button>
         </div>
 
-        {isCreatingWorkspace && (
-          <form className="workspace-form" onSubmit={handleSubmit}>
-            <div className="workspace-form-grid">
-              <label className="workspace-field">
+        {isCreatingStore && (
+          <form className="store-form" onSubmit={handleSubmit}>
+            <div className="store-form-grid">
+              <label className="store-field">
                 <span>매장명</span>
                 <input
                   type="text"
@@ -106,10 +106,10 @@ export const DashboardTab = ({ tab }) => {
                   onChange={handleChange}
                   placeholder="예: 서울 본점"
                 />
-                {errors.name && <p className="workspace-error">{errors.name}</p>}
+                {errors.name && <p className="store-error">{errors.name}</p>}
               </label>
 
-              <label className="workspace-field">
+              <label className="store-field">
                 <span>업종</span>
                 <input
                   type="text"
@@ -118,10 +118,10 @@ export const DashboardTab = ({ tab }) => {
                   onChange={handleChange}
                   placeholder="예: F&B, 리테일 등"
                 />
-                {errors.industry && <p className="workspace-error">{errors.industry}</p>}
+                {errors.industry && <p className="store-error">{errors.industry}</p>}
               </label>
 
-              <label className="workspace-checkbox">
+              <label className="store-checkbox">
                 <input
                   type="checkbox"
                   name="underFive"
@@ -132,34 +132,34 @@ export const DashboardTab = ({ tab }) => {
               </label>
             </div>
 
-            <div className="workspace-form-actions">
+            <div className="store-form-actions">
               <button type="submit" disabled={submitting}>
-                {submitting ? '등록 중...' : '워크스페이스 등록'}
+                {submitting ? '등록 중...' : '매장 등록'}
               </button>
               <button type="button" className="button-secondary" onClick={handleCancel} disabled={submitting}>
                 취소
               </button>
             </div>
 
-            {submitError && <p className="workspace-error" role="alert">{submitError}</p>}
+            {submitError && <p className="store-error" role="alert">{submitError}</p>}
           </form>
         )}
 
-        {workspaceError && !isCreatingWorkspace && (
-          <p className="workspace-error" role="alert">
-            {workspaceError}
+        {storeError && !isCreatingStore && (
+          <p className="store-error" role="alert">
+            {storeError}
           </p>
         )}
 
-        {!hasWorkspaces ? (
-          <p className="workspace-empty">워크스페이스를 먼저 등록하세요.</p>
+        {!hasStores ? (
+          <p className="store-empty">매장을 먼저 등록하세요.</p>
         ) : (
-          <div className="workspace-overview">
-            <div className="workspace-overview-header">
-              <h3>{selectedWorkspace?.name} 워크스페이스</h3>
+          <div className="store-overview">
+            <div className="store-overview-header">
+              <h3>{selectedStore?.name} 매장</h3>
               <p>
-                업종: {selectedWorkspace?.industry} · 상시근로자 5인 미만{' '}
-                {selectedWorkspace?.underFive ? '예' : '아니오'}
+                업종: {selectedStore?.industry} · 상시근로자 5인 미만{' '}
+                {selectedStore?.underFive ? '예' : '아니오'}
               </p>
             </div>
 

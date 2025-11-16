@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { WorkspaceSelect } from '../../../shared/components/WorkspaceSelect.jsx';
+import { StoreSelect } from '../../../shared/components/StoreSelect.jsx';
 import { useAuth } from '../../auth/hooks/useAuth.js';
 import { TAB_CONFIG } from '../constants/tabConfig.js';
-import { WorkspaceProvider } from '../context/WorkspaceProvider.jsx';
-import { useWorkspace } from '../hooks/useWorkspace.js';
+import { StoreProvider } from '../context/StoreProvider.jsx';
+import { useStore } from '../hooks/useStore.js';
 import { EmployeesProvider } from '../employees/context/EmployeesProvider.jsx';
 import { AttendanceTab } from './AttendanceTab.jsx';
 import { DashboardTab } from './DashboardTab.jsx';
@@ -23,13 +23,13 @@ const OperationsContent = ({ user, onLogout }) => {
   const [submitting, setSubmitting] = useState(false);
   const isMountedRef = useRef(true);
   const {
-    workspaces,
-    selectedWorkspaceId,
-    selectedWorkspace,
-    selectWorkspace,
-    hasWorkspaces,
-    isLoading: workspaceLoading
-  } = useWorkspace();
+    stores,
+    selectedStoreId,
+    selectedStore,
+    selectStore,
+    hasStores,
+    isLoading: storeLoading
+  } = useStore();
 
   useEffect(() => {
     return () => {
@@ -92,24 +92,24 @@ const OperationsContent = ({ user, onLogout }) => {
       </nav>
 
       <div className="operations-toolbar" aria-live="polite">
-        {workspaceLoading ? (
-          <p className="workspace-loading">워크스페이스 정보를 불러오는 중입니다...</p>
+        {storeLoading ? (
+          <p className="store-loading">매장 정보를 불러오는 중입니다...</p>
         ) : (
           <>
-            <WorkspaceSelect
-              workspaces={workspaces}
-              selectedWorkspaceId={selectedWorkspaceId}
-              onChange={selectWorkspace}
-              selectId="operationsWorkspaceSelect"
+            <StoreSelect
+              stores={stores}
+              selectedStoreId={selectedStoreId}
+              onChange={selectStore}
+              selectId="operationsStoreSelect"
             />
 
-            {hasWorkspaces ? (
-              <p className="workspace-active-hint">
-                현재 선택된 워크스페이스: <strong>{selectedWorkspace?.name ?? '선택되지 않음'}</strong>
+            {hasStores ? (
+              <p className="store-active-hint">
+                현재 선택된 매장: <strong>{selectedStore?.name ?? '선택되지 않음'}</strong>
               </p>
             ) : (
-              <p className="workspace-empty-hint">
-                워크스페이스를 생성하면 모든 탭에서 선택할 수 있습니다.
+              <p className="store-empty-hint">
+                매장을 생성하면 모든 탭에서 선택할 수 있습니다.
               </p>
             )}
           </>
@@ -129,12 +129,12 @@ export const OperationsShell = () => {
   }
 
   return (
-    <WorkspaceProvider>
+    <StoreProvider>
       <EmployeesProvider>
         <AttendanceProvider>
           <OperationsContent user={user} onLogout={logout} />
         </AttendanceProvider>
       </EmployeesProvider>
-    </WorkspaceProvider>
+    </StoreProvider>
   );
 };

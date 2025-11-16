@@ -1,15 +1,15 @@
 import { httpClient } from '../../../shared/api/httpClient.js';
 
-const basePath = '/api/workspaces';
+const basePath = '/api/stores';
 
-export const workspaceApi = {
-  async fetchWorkspaces() {
+export const storeApi = {
+  async fetchStores() {
     const { data } = await httpClient.get(basePath);
-    return data.workspaces ?? [];
+    return data.stores ?? [];
   },
 
-  async createWorkspace(payload) {
+  async createStore(payload) {
     const { data } = await httpClient.post(basePath, payload);
-    return data.workspace;
+    return data.store;
   }
 };

@@ -9,7 +9,7 @@ const runQuery = async (connection, sql, params = []) => {
   return db.query(sql, params);
 };
 
-const mapWorkspace = (row, roles = []) => ({
+const mapStore = (row, roles = []) => ({
   id: row.id,
   name: row.name,
   industry: row.industry,
@@ -17,43 +17,43 @@ const mapWorkspace = (row, roles = []) => ({
   roles
 });
 
-const fetchRolesForWorkspaceIds = async (workspaceIds, connection) => {
+const fetchRolesForStoreIds = async (storeIds, connection) => {
   const roleMap = new Map();
 
-  if (!workspaceIds.length) {
+  if (!storeIds.length) {
     return roleMap;
   }
 
-  const placeholders = workspaceIds.map(() => '?').join(', ');
+  const placeholders = storeIds.map(() => '?').join(', ');
   const rows = await runQuery(
     connection,
-    `SELECT workspace_id AS workspaceId, role_name AS roleName
-     FROM workspace_roles
-     WHERE workspace_id IN (${placeholders})
+    `SELECT store_id AS storeId, role_name AS roleName
+     FROM store_roles
+     WHERE store_id IN (${placeholders})
      ORDER BY display_order ASC, id ASC`,
-    workspaceIds
+    storeIds
   );
 
   rows.forEach((row) => {
-    const current = roleMap.get(row.workspaceId) ?? [];
+    const current = roleMap.get(row.storeId) ?? [];
     current.push(row.roleName);
-    roleMap.set(row.workspaceId, current);
+    roleMap.set(row.storeId, current);
   });
 
   return roleMap;
 };
 
-export const workspaceRepository = {
+export const storeRepository = {
   async findAll() {
     const rows = await db.query(
       `SELECT id, name, industry, under_five AS underFive
-       FROM workspaces
+       FROM stores
        ORDER BY created_at ASC`
     );
 
-    const roleMap = await fetchRolesForWorkspaceIds(rows.map((row) => row.id));
+    const roleMap = await fetchRolesForStoreIds(rows.map((row) => row.id));
 
-    return rows.map((row) => mapWorkspace(row, roleMap.get(row.id) ?? []));
+    return rows.map((row) => mapStore(row, roleMap.get(row.id) ?? []));
   },
 
   async findById(id, options = {}) {
@@ -64,7 +64,7 @@ export const workspaceRepository = {
     const rows = await runQuery(
       options.connection,
       `SELECT id, name, industry, under_five AS underFive
-       FROM workspaces
+       FROM stores
        WHERE id = ?
        LIMIT 1`,
       [id]
@@ -74,37 +74,37 @@ export const workspaceRepository = {
       return null;
     }
 
-    const workspace = rows[0];
+    const store = rows[0];
     let roles = [];
 
     if (options.includeRoles !== false) {
-      const roleMap = await fetchRolesForWorkspaceIds([workspace.id], options.connection);
-      roles = roleMap.get(workspace.id) ?? [];
+      const roleMap = await fetchRolesForStoreIds([store.id], options.connection);
+      roles = roleMap.get(store.id) ?? [];
     }
 
-    return mapWorkspace(workspace, roles);
+    return mapStore(store, roles);
   },
 
-  async create(workspaceInput, roles) {
+  async create(storeInput, roles) {
     return db.transaction(async (connection) => {
       const [result] = await connection.execute(
-        `INSERT INTO workspaces (name, industry, under_five)
+        `INSERT INTO stores (name, industry, under_five)
          VALUES (?, ?, ?)`,
-        [workspaceInput.name, workspaceInput.industry, workspaceInput.underFive ? 1 : 0]
+        [storeInput.name, storeInput.industry, storeInput.underFive ? 1 : 0]
       );
 
-      const workspaceId = result.insertId;
+      const storeId = result.insertId;
 
       for (let index = 0; index < roles.length; index += 1) {
         const roleName = roles[index];
         await connection.execute(
-          `INSERT INTO workspace_roles (workspace_id, role_name, display_order)
+          `INSERT INTO store_roles (store_id, role_name, display_order)
            VALUES (?, ?, ?)`,
-          [workspaceId, roleName, index]
+          [storeId, roleName, index]
         );
       }
 
-      return this.findById(workspaceId, { connection });
+      return this.findById(storeId, { connection });
     });
   }
 };

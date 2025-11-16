@@ -1,30 +1,30 @@
 import { useCallback, useMemo, useState } from 'react';
 import { attendanceApi } from '../../api/attendanceApi.js';
-import { useWorkspace } from '../../hooks/useWorkspace.js';
+import { useStore } from '../../hooks/useStore.js';
 import { AttendanceContext } from './AttendanceContext.js';
 
-const buildLoadingKey = (workspaceId, employeeId) => `${workspaceId}:${employeeId}`;
+const buildLoadingKey = (storeId, employeeId) => `${storeId}:${employeeId}`;
 
 export const AttendanceProvider = ({ children }) => {
-  const { selectedWorkspaceId } = useWorkspace();
+  const { selectedStoreId } = useStore();
   const [registry, setRegistry] = useState({});
   const [loadingMap, setLoadingMap] = useState({});
   const [errorMap, setErrorMap] = useState({});
 
-  const loadRecordsForEmployee = useCallback(async (workspaceId, employeeId) => {
-    if (!workspaceId || !employeeId) {
+  const loadRecordsForEmployee = useCallback(async (storeId, employeeId) => {
+    if (!storeId || !employeeId) {
       return [];
     }
 
-    const key = buildLoadingKey(workspaceId, employeeId);
+    const key = buildLoadingKey(storeId, employeeId);
     setLoadingMap((prev) => ({ ...prev, [key]: true }));
 
     try {
-      const records = await attendanceApi.fetchRecords(workspaceId, employeeId);
+      const records = await attendanceApi.fetchRecords(storeId, employeeId);
       setRegistry((prev) => ({
         ...prev,
-        [workspaceId]: {
-          ...(prev[workspaceId] ?? {}),
+        [storeId]: {
+          ...(prev[storeId] ?? {}),
           [employeeId]: records
         }
       }));
@@ -40,21 +40,21 @@ export const AttendanceProvider = ({ children }) => {
   }, []);
 
   const registerRecordForEmployee = useCallback(
-    async (workspaceId, employeeId, input) => {
-      if (!workspaceId) {
-        throw new Error('워크스페이스를 선택한 후 근태 기록을 등록할 수 있습니다.');
+    async (storeId, employeeId, input) => {
+      if (!storeId) {
+        throw new Error('매장을 선택한 후 근태 기록을 등록할 수 있습니다.');
       }
 
       if (!employeeId) {
         throw new Error('직원을 선택한 후 근태 기록을 등록할 수 있습니다.');
       }
 
-      const record = await attendanceApi.createRecord(workspaceId, {
+      const record = await attendanceApi.createRecord(storeId, {
         ...input,
         employeeId
       });
 
-      await loadRecordsForEmployee(workspaceId, employeeId);
+      await loadRecordsForEmployee(storeId, employeeId);
 
       return record;
     },
@@ -62,61 +62,61 @@ export const AttendanceProvider = ({ children }) => {
   );
 
   const updateRecordForEmployee = useCallback(
-    async (workspaceId, employeeId, recordId, updates) => {
-      if (!workspaceId || !employeeId) {
-        throw new Error('근태 기록을 수정하려면 워크스페이스와 직원을 선택하세요.');
+    async (storeId, employeeId, recordId, updates) => {
+      if (!storeId || !employeeId) {
+        throw new Error('근태 기록을 수정하려면 매장과 직원을 선택하세요.');
       }
 
-      const record = await attendanceApi.updateRecord(workspaceId, recordId, updates);
-      await loadRecordsForEmployee(workspaceId, employeeId);
+      const record = await attendanceApi.updateRecord(storeId, recordId, updates);
+      await loadRecordsForEmployee(storeId, employeeId);
 
       return record;
     },
     [loadRecordsForEmployee]
   );
 
-  const deleteRecordForEmployee = useCallback(async (workspaceId, employeeId, recordId) => {
-    if (!workspaceId || !employeeId) {
-      throw new Error('근태 기록을 삭제하려면 워크스페이스와 직원을 선택하세요.');
+  const deleteRecordForEmployee = useCallback(async (storeId, employeeId, recordId) => {
+    if (!storeId || !employeeId) {
+      throw new Error('근태 기록을 삭제하려면 매장과 직원을 선택하세요.');
     }
 
-    await attendanceApi.deleteRecord(workspaceId, recordId);
-    await loadRecordsForEmployee(workspaceId, employeeId);
+    await attendanceApi.deleteRecord(storeId, recordId);
+    await loadRecordsForEmployee(storeId, employeeId);
 
     return true;
   }, [loadRecordsForEmployee]);
 
   const value = useMemo(() => {
-    const workspaceRecords = selectedWorkspaceId ? registry[selectedWorkspaceId] ?? {} : {};
+    const storeRecords = selectedStoreId ? registry[selectedStoreId] ?? {} : {};
 
-    const getRecordsForEmployee = (employeeId) => workspaceRecords[employeeId] ?? [];
+    const getRecordsForEmployee = (employeeId) => storeRecords[employeeId] ?? [];
 
     return {
       getRecordsForEmployee,
       registerRecord: (employeeId, input) =>
-        registerRecordForEmployee(selectedWorkspaceId, employeeId, input),
+        registerRecordForEmployee(selectedStoreId, employeeId, input),
       updateRecord: (employeeId, recordId, updates) =>
-        updateRecordForEmployee(selectedWorkspaceId, employeeId, recordId, updates),
+        updateRecordForEmployee(selectedStoreId, employeeId, recordId, updates),
       removeRecord: (employeeId, recordId) =>
-        deleteRecordForEmployee(selectedWorkspaceId, employeeId, recordId),
-      loadRecords: (employeeId) => loadRecordsForEmployee(selectedWorkspaceId, employeeId),
+        deleteRecordForEmployee(selectedStoreId, employeeId, recordId),
+      loadRecords: (employeeId) => loadRecordsForEmployee(selectedStoreId, employeeId),
       isLoadingRecords: (employeeId) => {
-        if (!selectedWorkspaceId || !employeeId) {
+        if (!selectedStoreId || !employeeId) {
           return false;
         }
 
-        const key = buildLoadingKey(selectedWorkspaceId, employeeId);
+        const key = buildLoadingKey(selectedStoreId, employeeId);
         return loadingMap[key] ?? false;
       },
       recordError: (employeeId) => {
-        if (!selectedWorkspaceId || !employeeId) {
+        if (!selectedStoreId || !employeeId) {
           return null;
         }
 
-        const key = buildLoadingKey(selectedWorkspaceId, employeeId);
+        const key = buildLoadingKey(selectedStoreId, employeeId);
         return errorMap[key] ?? null;
       },
-      hasRecords: Object.values(workspaceRecords).some((records) => (records?.length ?? 0) > 0)
+      hasRecords: Object.values(storeRecords).some((records) => (records?.length ?? 0) > 0)
     };
   }, [
     deleteRecordForEmployee,
@@ -125,7 +125,7 @@ export const AttendanceProvider = ({ children }) => {
     loadingMap,
     registerRecordForEmployee,
     registry,
-    selectedWorkspaceId,
+    selectedStoreId,
     updateRecordForEmployee
   ]);
 

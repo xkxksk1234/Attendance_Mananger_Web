@@ -3,7 +3,7 @@ import './styles/forms.css';
 import './styles/buttons.css';
 import './styles/layout.css';
 import './styles/operations.css';
-import './styles/workspace.css';
+import './styles/store.css';
 import './styles/employees.css';
 import './styles/attendance.css';
 import { AuthProvider } from '../features/auth/context/AuthProvider.jsx';

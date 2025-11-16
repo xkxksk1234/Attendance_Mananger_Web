@@ -1,21 +1,21 @@
-import { DEFAULT_WORKSPACE_ROLES } from './workspace.constants.js';
-import { workspaceRepository } from './workspace.repository.js';
+import { DEFAULT_STORE_ROLES } from './store.constants.js';
+import { storeRepository } from './store.repository.js';
 
 const sanitize = (value) => (typeof value === 'string' ? value.trim() : '');
 
-export const workspaceService = {
-  async listWorkspaces() {
-    return workspaceRepository.findAll();
+export const storeService = {
+  async listStores() {
+    return storeRepository.findAll();
   },
 
-  async createWorkspace(input) {
+  async createStore(input) {
     const name = sanitize(input.name);
     const industry = sanitize(input.industry);
     const roles = Array.isArray(input.roles) && input.roles.length > 0
       ? input.roles.map((role) => sanitize(role)).filter(Boolean)
-      : DEFAULT_WORKSPACE_ROLES;
+      : DEFAULT_STORE_ROLES;
 
-    return workspaceRepository.create(
+    return storeRepository.create(
       {
         name,
         industry,
@@ -25,7 +25,7 @@ export const workspaceService = {
     );
   },
 
-  async getWorkspaceById(id) {
-    return workspaceRepository.findById(id);
+  async getStoreById(id) {
+    return storeRepository.findById(id);
   }
 };

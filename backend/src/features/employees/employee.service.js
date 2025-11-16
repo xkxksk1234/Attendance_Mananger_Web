@@ -19,21 +19,21 @@ const normalizeEmployeePayload = (input) => ({
 });
 
 export const employeeService = {
-  async listEmployees(workspaceId) {
-    return employeeRepository.findByWorkspace(workspaceId);
+  async listEmployees(storeId) {
+    return employeeRepository.findByStore(storeId);
   },
 
-  async createEmployee(workspaceId, input) {
+  async createEmployee(storeId, input) {
     const payload = normalizeEmployeePayload(input);
-    return employeeRepository.create(workspaceId, payload);
+    return employeeRepository.create(storeId, payload);
   },
 
-  async updateEmployee(workspaceId, employeeId, input) {
+  async updateEmployee(storeId, employeeId, input) {
     const payload = normalizeEmployeePayload(input);
-    return employeeRepository.update(workspaceId, employeeId, payload);
+    return employeeRepository.update(storeId, employeeId, payload);
   },
 
-  async deleteEmployee(workspaceId, employeeId) {
-    return employeeRepository.delete(workspaceId, employeeId);
+  async deleteEmployee(storeId, employeeId) {
+    return employeeRepository.delete(storeId, employeeId);
   }
 };

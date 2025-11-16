@@ -40,23 +40,23 @@ const normalizePayload = (input) => ({
 });
 
 export const attendanceService = {
-  async listRecords(workspaceId, employeeId) {
-    return attendanceRepository.findByEmployee(workspaceId, employeeId);
+  async listRecords(storeId, employeeId) {
+    return attendanceRepository.findByEmployee(storeId, employeeId);
   },
 
-  async createRecord(workspaceId, employeeId, input) {
+  async createRecord(storeId, employeeId, input) {
     const payload = normalizePayload(input);
     const totalMinutes = calculateTotalMinutes({ ...payload });
-    return attendanceRepository.create(workspaceId, employeeId, { ...payload, totalMinutes });
+    return attendanceRepository.create(storeId, employeeId, { ...payload, totalMinutes });
   },
 
-  async updateRecord(workspaceId, recordId, input) {
+  async updateRecord(storeId, recordId, input) {
     const payload = normalizePayload(input);
     const totalMinutes = calculateTotalMinutes({ ...payload });
-    return attendanceRepository.update(workspaceId, recordId, { ...payload, totalMinutes });
+    return attendanceRepository.update(storeId, recordId, { ...payload, totalMinutes });
   },
 
-  async deleteRecord(workspaceId, recordId) {
-    return attendanceRepository.delete(workspaceId, recordId);
+  async deleteRecord(storeId, recordId) {
+    return attendanceRepository.delete(storeId, recordId);
   }
 };
