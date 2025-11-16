@@ -5,6 +5,11 @@ export const calculateWorkMinutes = (record) => {
 
   const start = new Date(`${record.date}T${record.checkIn}`);
   const end = new Date(`${record.date}T${record.checkOut}`);
+
+  if (end <= start) {
+    end.setDate(end.getDate() + 1);
+  }
+
   const diff = Math.max(0, end.getTime() - start.getTime());
   const breakMinutes = Number(record.breakMinutes ?? 0);
 

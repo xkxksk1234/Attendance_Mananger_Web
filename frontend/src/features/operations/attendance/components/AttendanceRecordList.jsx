@@ -7,51 +7,52 @@ export const AttendanceRecordList = ({ records, onEdit, onDelete }) => {
   }
 
   return (
-    <div className="attendance-records" aria-live="polite">
-      {records.map((record) => {
-        const totalMinutes = calculateWorkMinutes(record);
-        const statusLabel = getAttendanceStatusLabel(record.status);
+    <div className="attendance-table-wrapper" aria-live="polite">
+      <table className="attendance-table">
+        <thead>
+          <tr>
+            <th scope="col">날짜</th>
+            <th scope="col">근무 상태</th>
+            <th scope="col">출근</th>
+            <th scope="col">퇴근</th>
+            <th scope="col">휴게</th>
+            <th scope="col">총 근무</th>
+            <th scope="col">비고</th>
+            <th scope="col" className="attendance-table-actions-header">
+              작업
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {records.map((record) => {
+            const totalMinutes = calculateWorkMinutes(record);
+            const statusLabel = getAttendanceStatusLabel(record.status);
+            const memoPreview = record.memo?.trim() ? record.memo : '-';
 
-        return (
-          <article key={record.id} className="attendance-record">
-            <div className="attendance-record-main">
-              <div>
-                <p className="attendance-record-date">{formatDateLabel(record.date)}</p>
-                <p className="attendance-record-status">{statusLabel}</p>
-              </div>
-              <div className="attendance-record-actions">
-                <button type="button" className="button-tertiary" onClick={() => onEdit(record)}>
-                  수정
-                </button>
-                <button type="button" className="button-danger" onClick={() => onDelete(record)}>
-                  삭제
-                </button>
-              </div>
-            </div>
-
-            <dl className="attendance-record-grid">
-              <div className="attendance-record-field">
-                <dt>출근 시간</dt>
-                <dd>{record.checkIn ? `${record.checkIn}` : '-'}</dd>
-              </div>
-              <div className="attendance-record-field">
-                <dt>퇴근 시간</dt>
-                <dd>{record.checkOut ? `${record.checkOut}` : '-'}</dd>
-              </div>
-              <div className="attendance-record-field">
-                <dt>휴게 시간</dt>
-                <dd>{record.breakMinutes ? `${record.breakMinutes}분` : '0분'}</dd>
-              </div>
-              <div className="attendance-record-field">
-                <dt>총 근무 시간</dt>
-                <dd>{formatWorkDuration(totalMinutes)}</dd>
-              </div>
-            </dl>
-
-            {record.memo ? <p className="attendance-record-memo">{record.memo}</p> : null}
-          </article>
-        );
-      })}
+            return (
+              <tr key={record.id}>
+                <td>{formatDateLabel(record.date)}</td>
+                <td className="attendance-status-cell">{statusLabel}</td>
+                <td>{record.checkIn || '-'}</td>
+                <td>{record.checkOut || '-'}</td>
+                <td>{record.breakMinutes ? `${record.breakMinutes}분` : '0분'}</td>
+                <td>{formatWorkDuration(totalMinutes)}</td>
+                <td className="attendance-memo-cell">{memoPreview}</td>
+                <td>
+                  <div className="attendance-table-actions">
+                    <button type="button" className="button-tertiary" onClick={() => onEdit(record)}>
+                      수정
+                    </button>
+                    <button type="button" className="button-danger" onClick={() => onDelete(record)}>
+                      삭제
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };
