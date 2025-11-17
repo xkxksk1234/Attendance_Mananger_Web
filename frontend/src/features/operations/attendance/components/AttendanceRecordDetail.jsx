@@ -1,5 +1,10 @@
 import { getAttendanceStatusLabel } from '../constants/statusOptions.js';
-import { calculateWorkMinutes, formatDateLabel, formatWorkDuration } from '../utils/timeCalculations.js';
+import {
+  calculateWorkMinutes,
+  formatDateLabel,
+  formatDateTimeLabel,
+  formatWorkDuration
+} from '../utils/timeCalculations.js';
 
 export const AttendanceRecordDetail = ({ record, employeeName, employeeNumber, onClose, onEdit, onDelete }) => {
   if (!record) {
@@ -11,6 +16,8 @@ export const AttendanceRecordDetail = ({ record, employeeName, employeeNumber, o
   const breakLabel = record.breakMinutes ? `${record.breakMinutes}분` : '0분';
   const statusLabel = getAttendanceStatusLabel(record.status);
   const memo = record.memo?.trim();
+  const createdLabel = record.createdAt ? formatDateTimeLabel(record.createdAt) : '-';
+  const updatedLabel = record.updatedAt ? formatDateTimeLabel(record.updatedAt) : '-';
 
   const handleEdit = () => {
     if (typeof onEdit === 'function') {
@@ -48,7 +55,9 @@ export const AttendanceRecordDetail = ({ record, employeeName, employeeNumber, o
         <DetailField label="퇴근 시간">{record.checkOut || '-'}</DetailField>
         <DetailField label="총 근무 시간">{totalLabel}</DetailField>
         <DetailField label="휴게 시간">{breakLabel}</DetailField>
-        <DetailField label="등록 일자">{formatDateLabel(record.date)}</DetailField>
+        <DetailField label="근무 일자">{formatDateLabel(record.date)}</DetailField>
+        <DetailField label="기록 생성일">{createdLabel}</DetailField>
+        <DetailField label="마지막 수정일">{updatedLabel}</DetailField>
       </div>
 
       <div className="attendance-detail-memo">

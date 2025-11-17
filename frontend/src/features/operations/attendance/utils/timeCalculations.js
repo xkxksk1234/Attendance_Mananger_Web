@@ -61,3 +61,33 @@ export const formatDateLabel = (dateString) => {
     day: '2-digit'
   });
 };
+
+const buildLocalDateTime = (dateTimeString) => {
+  if (!dateTimeString) {
+    return null;
+  }
+
+  const parsed = new Date(dateTimeString);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed;
+};
+
+export const formatDateTimeLabel = (dateTimeString) => {
+  const date = buildLocalDateTime(dateTimeString);
+
+  if (!date) {
+    return dateTimeString ?? '';
+  }
+
+  return date.toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};

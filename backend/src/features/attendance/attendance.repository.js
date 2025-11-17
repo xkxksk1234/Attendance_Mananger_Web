@@ -47,7 +47,9 @@ const mapRecord = (row) => ({
   breakMinutes: Number(row.break_minutes ?? 0),
   status: row.status,
   memo: row.memo ?? '',
-  totalMinutes: Number(row.total_minutes ?? 0)
+  totalMinutes: Number(row.total_minutes ?? 0),
+  createdAt: row.created_at ? new Date(row.created_at).toISOString() : null,
+  updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : null
 });
 
 export const attendanceRepository = {
