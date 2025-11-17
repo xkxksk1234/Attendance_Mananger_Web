@@ -21,6 +21,7 @@ export const AttendanceManagement = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [selectedRecordId, setSelectedRecordId] = useState(null);
+  const [formInitialValues, setFormInitialValues] = useState(null);
 
   useEffect(() => {
     if (!employees.length) {
@@ -28,6 +29,7 @@ export const AttendanceManagement = () => {
       setIsFormOpen(false);
       setEditingRecord(null);
       setSelectedRecordId(null);
+      setFormInitialValues(null);
       return;
     }
 
@@ -66,18 +68,39 @@ export const AttendanceManagement = () => {
     setIsFormOpen(false);
     setEditingRecord(null);
     setSelectedRecordId(null);
+    setFormInitialValues(null);
   };
 
   const handleCreateRequest = () => {
     setIsFormOpen(true);
     setEditingRecord(null);
     setSelectedRecordId(null);
+    setFormInitialValues(null);
   };
 
   const handleEditRecord = (record) => {
     setIsFormOpen(true);
     setEditingRecord(record);
     setSelectedRecordId(null);
+    setFormInitialValues(record);
+  };
+
+  const handleCopyRecord = (record) => {
+    if (!record) {
+      return;
+    }
+
+    setIsFormOpen(true);
+    setEditingRecord(null);
+    setSelectedRecordId(null);
+    setFormInitialValues({
+      date: record.date,
+      checkIn: record.checkIn,
+      checkOut: record.checkOut,
+      breakMinutes: record.breakMinutes,
+      status: record.status,
+      memo: record.memo
+    });
   };
 
   const handleSelectRecord = (record) => {
@@ -105,6 +128,10 @@ export const AttendanceManagement = () => {
       setIsFormOpen(false);
     }
 
+    if (formInitialValues && formInitialValues.id === record.id) {
+      setFormInitialValues(null);
+    }
+
     if (selectedRecordId === record.id) {
       setSelectedRecordId(null);
     }
@@ -129,6 +156,7 @@ export const AttendanceManagement = () => {
     setIsFormOpen(false);
     setEditingRecord(null);
     setSelectedRecordId(null);
+    setFormInitialValues(null);
   };
 
   const isLoading = selectedEmployeeId ? isLoadingRecords(selectedEmployeeId) : false;
@@ -170,11 +198,13 @@ export const AttendanceManagement = () => {
           {isFormOpen && (
             <AttendanceRecordForm
               employee={selectedEmployee}
-              initialValues={editingRecord}
+              initialValues={formInitialValues ?? editingRecord}
+              isEditing={Boolean(editingRecord)}
               onSubmit={handleSubmit}
               onCancel={() => {
                 setIsFormOpen(false);
                 setEditingRecord(null);
+                setFormInitialValues(null);
               }}
             />
           )}
@@ -193,6 +223,7 @@ export const AttendanceManagement = () => {
             onEdit={handleEditRecord}
             onDelete={handleDeleteRecord}
             onSelect={handleSelectRecord}
+            onCopy={handleCopyRecord}
             selectedRecordId={selectedRecordId}
           />
 
@@ -204,6 +235,7 @@ export const AttendanceManagement = () => {
               onClose={() => setSelectedRecordId(null)}
               onEdit={() => handleEditRecord(selectedRecord)}
               onDelete={() => handleDeleteRecord(selectedRecord)}
+              onCopy={() => handleCopyRecord(selectedRecord)}
             />
           )}
         </>

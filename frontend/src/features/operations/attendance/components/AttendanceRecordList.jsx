@@ -1,7 +1,7 @@
 import { getAttendanceStatusLabel } from '../constants/statusOptions.js';
 import { calculateWorkMinutes, formatDateLabel, formatWorkDuration } from '../utils/timeCalculations.js';
 
-export const AttendanceRecordList = ({ records, onEdit, onDelete, onSelect, selectedRecordId }) => {
+export const AttendanceRecordList = ({ records, onEdit, onDelete, onSelect, onCopy, selectedRecordId }) => {
   if (!records?.length) {
     return <p className="attendance-empty">아직 등록된 근태 기록이 없습니다. 새로운 기록을 추가해 주세요.</p>;
   }
@@ -79,6 +79,16 @@ export const AttendanceRecordList = ({ records, onEdit, onDelete, onSelect, sele
                 <td className="attendance-col attendance-col-memo attendance-memo-cell">{memoPreview}</td>
                 <td className="attendance-col attendance-col-actions">
                   <div className="attendance-table-actions">
+                    <button
+                      type="button"
+                      className="button-secondary"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onCopy?.(record);
+                      }}
+                    >
+                      복사
+                    </button>
                     <button
                       type="button"
                       className="button-tertiary"

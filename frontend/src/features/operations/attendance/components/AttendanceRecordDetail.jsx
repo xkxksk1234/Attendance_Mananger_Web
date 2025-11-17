@@ -6,7 +6,7 @@ import {
   formatWorkDuration
 } from '../utils/timeCalculations.js';
 
-export const AttendanceRecordDetail = ({ record, employeeName, employeeNumber, onClose, onEdit, onDelete }) => {
+export const AttendanceRecordDetail = ({ record, employeeName, employeeNumber, onClose, onEdit, onDelete, onCopy }) => {
   if (!record) {
     return null;
   }
@@ -28,6 +28,12 @@ export const AttendanceRecordDetail = ({ record, employeeName, employeeNumber, o
   const handleDelete = () => {
     if (typeof onDelete === 'function') {
       onDelete(record);
+    }
+  };
+
+  const handleCopy = () => {
+    if (typeof onCopy === 'function') {
+      onCopy(record);
     }
   };
 
@@ -66,6 +72,9 @@ export const AttendanceRecordDetail = ({ record, employeeName, employeeNumber, o
       </div>
 
       <div className="attendance-detail-actions">
+        <button type="button" className="button-secondary" onClick={handleCopy}>
+          복사하기
+        </button>
         <button type="button" className="button-primary" onClick={handleEdit}>
           수정하기
         </button>

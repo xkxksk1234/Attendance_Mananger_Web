@@ -31,7 +31,7 @@ const buildInitialState = (initialValues) => {
   };
 };
 
-export const AttendanceRecordForm = ({ employee, onSubmit, onCancel, initialValues }) => {
+export const AttendanceRecordForm = ({ employee, onSubmit, onCancel, initialValues, isEditing = false }) => {
   const [values, setValues] = useState(() => buildInitialState(initialValues));
   const [errors, setErrors] = useState({});
 
@@ -89,7 +89,7 @@ export const AttendanceRecordForm = ({ employee, onSubmit, onCancel, initialValu
     });
   };
 
-  const modeLabel = initialValues ? '근태 기록 수정' : '근태 기록 등록';
+  const modeLabel = isEditing ? '근태 기록 수정' : '근태 기록 등록';
 
   return (
     <form className="attendance-form" onSubmit={handleSubmit} noValidate>
@@ -99,7 +99,7 @@ export const AttendanceRecordForm = ({ employee, onSubmit, onCancel, initialValu
           <p className="attendance-form-subtitle">{employee.name}님의 근태 정보를 입력해 주세요.</p>
         </div>
         <div className="attendance-form-actions">
-          <button type="submit">{initialValues ? '저장하기' : '등록하기'}</button>
+          <button type="submit">{isEditing ? '저장하기' : '등록하기'}</button>
           <button type="button" className="button-secondary" onClick={onCancel}>
             취소
           </button>
