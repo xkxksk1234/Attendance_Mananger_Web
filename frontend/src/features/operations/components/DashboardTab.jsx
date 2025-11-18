@@ -8,12 +8,14 @@ const INITIAL_FORM_STATE = {
 };
 
 export const DashboardTab = ({ tab }) => {
-  const { selectedStore, registerStore, hasStores, storeError } = useStore();
+  const { selectedStore, selectedStoreId, registerStore, removeStore, hasStores, storeError } = useStore();
   const [isCreatingStore, setIsCreatingStore] = useState(false);
   const [formState, setFormState] = useState(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -33,6 +35,32 @@ export const DashboardTab = ({ tab }) => {
     setIsCreatingStore(false);
     resetForm();
     setSubmitError(null);
+  };
+
+  const handleDeleteStore = async () => {
+    if (!selectedStoreId || !selectedStore) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `"${selectedStore.name}" 매장을 삭제하시겠습니까? 모든 직원 및 출퇴근 기록이 함께 삭제됩니다.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeleteSubmitting(true);
+    setDeleteError(null);
+
+    try {
+      await removeStore(selectedStoreId);
+    } catch (error) {
+      console.error('매장 삭제 중 오류가 발생했습니다.', error);
+      setDeleteError('매장을 삭제하는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setDeleteSubmitting(false);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -156,11 +184,21 @@ export const DashboardTab = ({ tab }) => {
         ) : (
           <div className="store-overview">
             <div className="store-overview-header">
-              <h3>{selectedStore?.name} 매장</h3>
-              <p>
-                업종: {selectedStore?.industry} · 상시근로자 5인 미만{' '}
-                {selectedStore?.underFive ? '예' : '아니오'}
-              </p>
+              <div>
+                <h3>{selectedStore?.name} 매장</h3>
+                <p>
+                  업종: {selectedStore?.industry} · 상시근로자 5인 미만{' '}
+                  {selectedStore?.underFive ? '예' : '아니오'}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="button-danger store-delete-button"
+                onClick={handleDeleteStore}
+                disabled={deleteSubmitting}
+              >
+                {deleteSubmitting ? '삭제 중...' : '매장 삭제'}
+              </button>
             </div>
 
             <ul className="tab-list">
@@ -169,6 +207,11 @@ export const DashboardTab = ({ tab }) => {
               ))}
             </ul>
             <p className="tab-hint">* 해당 기능은 곧 구현될 예정입니다.</p>
+            {deleteError && (
+              <p className="store-error" role="alert">
+                {deleteError}
+              </p>
+            )}
           </div>
         )}
       </div>

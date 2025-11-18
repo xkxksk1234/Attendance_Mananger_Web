@@ -1,18 +1,25 @@
 CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
-  email VARCHAR(150) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
+  account_id VARCHAR(60) NOT NULL UNIQUE,
+  password_hash CHAR(128) NOT NULL,
+  password_salt CHAR(32) NOT NULL,
+  password_suffix VARCHAR(24) NOT NULL,
   role VARCHAR(50) NOT NULL DEFAULT 'admin',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS stores (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  owner_id INT UNSIGNED NOT NULL,
   name VARCHAR(150) NOT NULL,
   industry VARCHAR(150) NOT NULL,
   under_five TINYINT(1) NOT NULL DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_stores_owner
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+    ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS store_roles (
@@ -67,12 +74,14 @@ CREATE TABLE IF NOT EXISTS attendance_records (
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 샘플 관리자 계정 (비밀번호: admin123)
-INSERT INTO users (name, email, password_hash, role)
+-- 샘플 관리자 계정 (아이디: admin / 비밀번호: admin123)
+INSERT INTO users (name, account_id, password_hash, password_salt, password_suffix, role)
 VALUES (
   '관리자',
-  'admin@example.com',
-  '$2a$10$X3ufADG7n2AFDzy83H8X7.s5m8SGvtQvECOH14R/2uOeGZ5ER5Yj2',
+  'admin',
+  '91e2a92ee295d4afa8c0bb11e09e82819ad8d3e70b4b6cc614da7314c8029576e8b573b215991b42d2f4a8adfdeac00a5392b791405f7b2b550140e00f2d0ef6',
+  'cb766eaaef74d32d587b398b724741ba',
+  'seed-92b3',
   'admin'
 )
-ON DUPLICATE KEY UPDATE email = email;
+ON DUPLICATE KEY UPDATE account_id = account_id;

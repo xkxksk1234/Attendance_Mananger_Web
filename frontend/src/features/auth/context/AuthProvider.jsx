@@ -60,14 +60,36 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const registerAccount = useCallback(async (payload) => {
+    try {
+      const response = await authApi.registerAccount(payload);
+      setUser(response.user);
+      setStatus('authenticated');
+      return response;
+    } catch (error) {
+      setUser(null);
+      setStatus('unauthenticated');
+      throw error;
+    }
+  }, []);
+
+  const deleteAccount = useCallback(async (payload) => {
+    const response = await authApi.deleteAccount(payload);
+    setUser(null);
+    setStatus('unauthenticated');
+    return response;
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
       status,
       login,
-      logout
+      logout,
+      registerAccount,
+      deleteAccount
     }),
-    [user, status, login, logout]
+    [user, status, login, logout, registerAccount, deleteAccount]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -139,6 +139,39 @@ button.tab-button.active {
   color: #1d4ed8;
 }
 
+.account-security {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.account-security-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.account-security-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.account-security-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.account-security-form .button-danger {
+  justify-self: flex-start;
+}
+
 @media (max-width: 640px) {
   .session-header {
     flex-direction: column;
@@ -155,5 +188,9 @@ button.tab-button.active {
 
   .tab-panel {
     padding: 1rem;
+  }
+
+  .account-security-form {
+    grid-template-columns: 1fr;
   }
 }

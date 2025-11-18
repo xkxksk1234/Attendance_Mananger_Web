@@ -57,6 +57,29 @@ export const StoreProvider = ({ children }) => {
     return store;
   }, [normalizeStoreId]);
 
+  const removeStore = useCallback(async (storeId) => {
+    const normalized = normalizeStoreId(storeId);
+
+    if (!normalized) {
+      throw new Error('삭제할 매장을 선택해 주세요.');
+    }
+
+    await storeApi.deleteStore(storeId);
+
+    setStores((prev) => {
+      const nextStores = prev.filter((store) => String(store.id) !== normalized);
+      setSelectedStoreId((currentId) => {
+        if (currentId && nextStores.some((store) => String(store.id) === currentId)) {
+          return currentId;
+        }
+        return nextStores.length ? String(nextStores[0].id) : null;
+      });
+      return nextStores;
+    });
+
+    return true;
+  }, [normalizeStoreId]);
+
   const selectStore = useCallback((storeId) => {
     setSelectedStoreId(normalizeStoreId(storeId));
   }, [normalizeStoreId]);
@@ -70,6 +93,7 @@ export const StoreProvider = ({ children }) => {
       selectedStoreId,
       selectedStore,
       registerStore,
+      removeStore,
       selectStore,
       hasStores: stores.length > 0,
       isLoading: loading,
@@ -81,6 +105,7 @@ export const StoreProvider = ({ children }) => {
     loadStores,
     loading,
     registerStore,
+    removeStore,
     selectStore,
     selectedStoreId,
     stores

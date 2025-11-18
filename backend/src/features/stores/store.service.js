@@ -4,11 +4,11 @@ import { storeRepository } from './store.repository.js';
 const sanitize = (value) => (typeof value === 'string' ? value.trim() : '');
 
 export const storeService = {
-  async listStores() {
-    return storeRepository.findAll();
+  async listStores(ownerId) {
+    return storeRepository.findAllByOwner(ownerId);
   },
 
-  async createStore(input) {
+  async createStore(ownerId, input) {
     const name = sanitize(input.name);
     const industry = sanitize(input.industry);
     const roles = Array.isArray(input.roles) && input.roles.length > 0
@@ -16,6 +16,7 @@ export const storeService = {
       : DEFAULT_STORE_ROLES;
 
     return storeRepository.create(
+      ownerId,
       {
         name,
         industry,
@@ -25,7 +26,11 @@ export const storeService = {
     );
   },
 
-  async getStoreById(id) {
-    return storeRepository.findById(id);
+  async ensureStoreAccess(ownerId, storeId) {
+    return storeRepository.findByIdForOwner(ownerId, storeId);
+  },
+
+  async deleteStore(ownerId, storeId) {
+    return storeRepository.delete(ownerId, storeId);
   }
 };

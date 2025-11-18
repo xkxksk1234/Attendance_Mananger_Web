@@ -1,8 +1,20 @@
 import { employeeService } from './employee.service.js';
+import { storeService } from '../stores/store.service.js';
 
 const parseStoreId = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+};
+
+const ensureStoreAccess = async (req, res, storeId) => {
+  const store = await storeService.ensureStoreAccess(req.auth.sub, storeId);
+
+  if (!store) {
+    res.status(404).json({ message: '매장을 찾을 수 없습니다.' });
+    return null;
+  }
+
+  return store;
 };
 
 export const listEmployees = async (req, res, next) => {
@@ -11,6 +23,12 @@ export const listEmployees = async (req, res, next) => {
 
     if (!storeId) {
       return res.status(400).json({ message: '유효한 매장 ID가 필요합니다.' });
+    }
+
+    const store = await ensureStoreAccess(req, res, storeId);
+
+    if (!store) {
+      return undefined;
     }
 
     const employees = await employeeService.listEmployees(storeId);
@@ -26,6 +44,12 @@ export const createEmployee = async (req, res, next) => {
 
     if (!storeId) {
       return res.status(400).json({ message: '유효한 매장 ID가 필요합니다.' });
+    }
+
+    const store = await ensureStoreAccess(req, res, storeId);
+
+    if (!store) {
+      return undefined;
     }
 
     const requiredFields = ['emp_id', 'name', 'role', 'phone', 'pay', 'contract_date', 'expiration_date'];
@@ -51,6 +75,12 @@ export const updateEmployee = async (req, res, next) => {
       return res.status(400).json({ message: '유효한 식별자를 전달해 주세요.' });
     }
 
+    const store = await ensureStoreAccess(req, res, storeId);
+
+    if (!store) {
+      return undefined;
+    }
+
     const employee = await employeeService.updateEmployee(storeId, employeeId, req.body);
 
     if (!employee) {
@@ -70,6 +100,12 @@ export const deleteEmployee = async (req, res, next) => {
 
     if (!storeId || !employeeId) {
       return res.status(400).json({ message: '유효한 식별자를 전달해 주세요.' });
+    }
+
+    const store = await ensureStoreAccess(req, res, storeId);
+
+    if (!store) {
+      return undefined;
     }
 
     const removed = await employeeService.deleteEmployee(storeId, employeeId);

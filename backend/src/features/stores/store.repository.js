@@ -13,7 +13,7 @@ const mapStore = (row, roles = []) => ({
   id: row.id,
   name: row.name,
   industry: row.industry,
-  underFive: Boolean(row.underFive),
+  underFive: Boolean(row.underFive ?? row.under_five),
   roles
 });
 
@@ -44,11 +44,13 @@ const fetchRolesForStoreIds = async (storeIds, connection) => {
 };
 
 export const storeRepository = {
-  async findAll() {
+  async findAllByOwner(ownerId) {
     const rows = await db.query(
       `SELECT id, name, industry, under_five AS underFive
        FROM stores
-       ORDER BY created_at ASC`
+       WHERE owner_id = ?
+       ORDER BY created_at ASC`,
+      [ownerId]
     );
 
     const roleMap = await fetchRolesForStoreIds(rows.map((row) => row.id));
@@ -56,7 +58,7 @@ export const storeRepository = {
     return rows.map((row) => mapStore(row, roleMap.get(row.id) ?? []));
   },
 
-  async findById(id, options = {}) {
+  async findByIdForOwner(ownerId, id, options = {}) {
     if (!id) {
       return null;
     }
@@ -65,9 +67,9 @@ export const storeRepository = {
       options.connection,
       `SELECT id, name, industry, under_five AS underFive
        FROM stores
-       WHERE id = ?
+       WHERE id = ? AND owner_id = ?
        LIMIT 1`,
-      [id]
+      [id, ownerId]
     );
 
     if (!rows.length) {
@@ -85,12 +87,12 @@ export const storeRepository = {
     return mapStore(store, roles);
   },
 
-  async create(storeInput, roles) {
+  async create(ownerId, storeInput, roles) {
     return db.transaction(async (connection) => {
       const [result] = await connection.execute(
-        `INSERT INTO stores (name, industry, under_five)
-         VALUES (?, ?, ?)`,
-        [storeInput.name, storeInput.industry, storeInput.underFive ? 1 : 0]
+        `INSERT INTO stores (owner_id, name, industry, under_five)
+         VALUES (?, ?, ?, ?)`,
+        [ownerId, storeInput.name, storeInput.industry, storeInput.underFive ? 1 : 0]
       );
 
       const storeId = result.insertId;
@@ -104,7 +106,16 @@ export const storeRepository = {
         );
       }
 
-      return this.findById(storeId, { connection });
+      return this.findByIdForOwner(ownerId, storeId, { connection });
     });
+  },
+
+  async delete(ownerId, storeId) {
+    const [result] = await db.pool.execute(
+      `DELETE FROM stores WHERE id = ? AND owner_id = ?`,
+      [storeId, ownerId]
+    );
+
+    return result.affectedRows > 0;
   }
 };

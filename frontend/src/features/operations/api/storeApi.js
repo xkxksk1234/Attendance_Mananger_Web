@@ -11,5 +11,9 @@ export const storeApi = {
   async createStore(payload) {
     const { data } = await httpClient.post(basePath, payload);
     return data.store;
+  },
+
+  async deleteStore(storeId) {
+    await httpClient.delete(`${basePath}/${storeId}`);
   }
 };

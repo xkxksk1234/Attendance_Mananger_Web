@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../hooks/useAuth.js';
 
 const initialFormState = {
-  email: '',
+  accountId: '',
   password: ''
 };
 
-export const LoginPanel = () => {
+export const LoginPanel = ({ onSwitch }) => {
   const { login } = useAuth();
   const [form, setForm] = useState(initialFormState);
   const [error, setError] = useState('');
@@ -30,7 +30,7 @@ export const LoginPanel = () => {
     setError('');
 
     try {
-      await login({ email: form.email, password: form.password });
+      await login({ accountId: form.accountId.trim(), password: form.password });
       if (isMountedRef.current) {
         setForm(initialFormState);
       }
@@ -50,15 +50,16 @@ export const LoginPanel = () => {
   };
 
   return (
-    <form className="card" onSubmit={handleSubmit} noValidate>
-      <label htmlFor="email">이메일</label>
+    <form className="card auth-panel" onSubmit={handleSubmit} noValidate>
+      <h2>계정 로그인</h2>
+      <label htmlFor="accountId">아이디</label>
       <input
-        id="email"
-        name="email"
-        type="email"
-        placeholder="admin@example.com"
-        autoComplete="email"
-        value={form.email}
+        id="accountId"
+        name="accountId"
+        type="text"
+        placeholder="예: manager01"
+        autoComplete="username"
+        value={form.accountId}
         onChange={handleChange}
         required
       />
@@ -80,6 +81,17 @@ export const LoginPanel = () => {
       <button type="submit" disabled={submitting}>
         {submitting ? '로그인 중...' : '로그인'}
       </button>
+
+      <p className="form-hint">
+        아직 계정이 없다면{' '}
+        <button
+          type="button"
+          className="link-button"
+          onClick={() => onSwitch?.('signup')}
+        >
+          회원가입을 진행하세요.
+        </button>
+      </p>
     </form>
   );
 };

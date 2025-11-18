@@ -1,4 +1,4 @@
-import { LoginPanel } from './LoginPanel.jsx';
+import { AuthLanding } from './AuthLanding.jsx';
 import { OperationsShell } from '../../operations/components/OperationsShell.jsx';
 import { useAuth } from '../hooks/useAuth.js';
 
@@ -17,5 +17,5 @@ export const AuthGate = () => {
     return <OperationsShell />;
   }
 
-  return <LoginPanel />;
+  return <AuthLanding />;
 };

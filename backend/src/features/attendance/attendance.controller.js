@@ -1,8 +1,20 @@
 import { attendanceService } from './attendance.service.js';
+import { storeService } from '../stores/store.service.js';
 
 const parseId = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+};
+
+const ensureStoreAccess = async (req, res, storeId) => {
+  const store = await storeService.ensureStoreAccess(req.auth.sub, storeId);
+
+  if (!store) {
+    res.status(404).json({ message: '매장을 찾을 수 없습니다.' });
+    return null;
+  }
+
+  return store;
 };
 
 export const listAttendanceRecords = async (req, res, next) => {
@@ -12,6 +24,12 @@ export const listAttendanceRecords = async (req, res, next) => {
 
     if (!storeId || !employeeId) {
       return res.status(400).json({ message: '근태 기록을 조회할 매장과 직원 ID가 필요합니다.' });
+    }
+
+    const store = await ensureStoreAccess(req, res, storeId);
+
+    if (!store) {
+      return undefined;
     }
 
     const records = await attendanceService.listRecords(storeId, employeeId);
@@ -28,6 +46,12 @@ export const createAttendanceRecord = async (req, res, next) => {
 
     if (!storeId || !employeeId) {
       return res.status(400).json({ message: '근태 기록을 저장할 매장과 직원 ID가 필요합니다.' });
+    }
+
+    const store = await ensureStoreAccess(req, res, storeId);
+
+    if (!store) {
+      return undefined;
     }
 
     if (!req.body?.date || !req.body?.status) {
@@ -50,6 +74,12 @@ export const updateAttendanceRecord = async (req, res, next) => {
       return res.status(400).json({ message: '근태 기록을 수정할 수 없습니다. 식별자를 확인하세요.' });
     }
 
+    const store = await ensureStoreAccess(req, res, storeId);
+
+    if (!store) {
+      return undefined;
+    }
+
     const record = await attendanceService.updateRecord(storeId, recordId, req.body);
 
     if (!record) {
@@ -69,6 +99,12 @@ export const deleteAttendanceRecord = async (req, res, next) => {
 
     if (!storeId || !recordId) {
       return res.status(400).json({ message: '근태 기록을 삭제할 수 없습니다. 식별자를 확인하세요.' });
+    }
+
+    const store = await ensureStoreAccess(req, res, storeId);
+
+    if (!store) {
+      return undefined;
     }
 
     const removed = await attendanceService.deleteRecord(storeId, recordId);

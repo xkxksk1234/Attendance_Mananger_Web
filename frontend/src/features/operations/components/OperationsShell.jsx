@@ -10,6 +10,7 @@ import { DashboardTab } from './DashboardTab.jsx';
 import { EmployeesTab } from './EmployeesTab.jsx';
 import { PayrollTab } from './PayrollTab.jsx';
 import { AttendanceProvider } from '../attendance/context/AttendanceProvider.jsx';
+import { AccountSecurityPanel } from './AccountSecurityPanel.jsx';
 
 const TAB_COMPONENT_MAP = {
   dashboard: DashboardTab,
@@ -18,7 +19,7 @@ const TAB_COMPONENT_MAP = {
   payroll: PayrollTab
 };
 
-const OperationsContent = ({ user, onLogout }) => {
+const OperationsContent = ({ user, onLogout, onWithdraw }) => {
   const [activeTab, setActiveTab] = useState(TAB_CONFIG[0].id);
   const [submitting, setSubmitting] = useState(false);
   const isMountedRef = useRef(true);
@@ -66,7 +67,7 @@ const OperationsContent = ({ user, onLogout }) => {
           <p className="session-title">
             <strong>{user.name}</strong>님 환영합니다!
           </p>
-          <p className="session-meta">역할: {user.role} · 이메일: {user.email}</p>
+          <p className="session-meta">계정: {user.accountId} · 역할: {user.role}</p>
         </div>
         <button
           type="button"
@@ -117,12 +118,13 @@ const OperationsContent = ({ user, onLogout }) => {
       </div>
 
       <ActiveTabComponent tab={tab} />
+      <AccountSecurityPanel user={user} onWithdraw={onWithdraw} />
     </div>
   );
 };
 
 export const OperationsShell = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
 
   if (!user) {
     return null;
@@ -132,7 +134,7 @@ export const OperationsShell = () => {
     <StoreProvider>
       <EmployeesProvider>
         <AttendanceProvider>
-          <OperationsContent user={user} onLogout={logout} />
+          <OperationsContent user={user} onLogout={logout} onWithdraw={deleteAccount} />
         </AttendanceProvider>
       </EmployeesProvider>
     </StoreProvider>

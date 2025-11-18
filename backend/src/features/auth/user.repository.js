@@ -8,24 +8,26 @@ const mapUserRow = (row) => {
   return {
     id: row.id,
     name: row.name,
-    email: row.email,
+    accountId: row.account_id,
     role: row.role,
-    passwordHash: row.password_hash
+    passwordHash: row.password_hash,
+    passwordSalt: row.password_salt,
+    passwordSuffix: row.password_suffix
   };
 };
 
 export const userRepository = {
-  async findByEmail(email) {
-    if (!email) {
+  async findByAccountId(accountId) {
+    if (!accountId) {
       return null;
     }
 
     const rows = await db.query(
-      `SELECT id, name, email, role, password_hash
+      `SELECT id, name, account_id, role, password_hash, password_salt, password_suffix
        FROM users
-       WHERE LOWER(email) = LOWER(?)
+       WHERE LOWER(account_id) = LOWER(?)
        LIMIT 1`,
-      [email]
+      [accountId]
     );
 
     return mapUserRow(rows[0]);
@@ -37,7 +39,7 @@ export const userRepository = {
     }
 
     const rows = await db.query(
-      `SELECT id, name, email, role, password_hash
+      `SELECT id, name, account_id, role, password_hash, password_salt, password_suffix
        FROM users
        WHERE id = ?
        LIMIT 1`,
@@ -45,5 +47,41 @@ export const userRepository = {
     );
 
     return mapUserRow(rows[0]);
+  },
+
+  async create(userInput) {
+    const [result] = await db.pool.execute(
+      `INSERT INTO users (
+         name,
+         account_id,
+         password_hash,
+         password_salt,
+         password_suffix,
+         role
+       ) VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        userInput.name,
+        userInput.accountId,
+        userInput.passwordHash,
+        userInput.passwordSalt,
+        userInput.passwordSuffix,
+        userInput.role ?? 'admin'
+      ]
+    );
+
+    return this.findById(result.insertId);
+  },
+
+  async deleteById(id) {
+    if (!id) {
+      return false;
+    }
+
+    const [result] = await db.pool.execute(
+      `DELETE FROM users WHERE id = ?`,
+      [id]
+    );
+
+    return result.affectedRows > 0;
   }
 };

@@ -107,8 +107,10 @@
 
 .store-overview-header {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .store-overview-header h3 {
@@ -119,6 +121,11 @@
   margin: 0;
   color: #475569;
   font-size: 0.95rem;
+}
+
+.store-delete-button {
+  min-width: 140px;
+  white-space: nowrap;
 }
 
 @media (max-width: 640px) {
@@ -146,5 +153,14 @@
 
   .store-form-actions {
     flex-direction: column;
+  }
+
+  .store-overview-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .store-delete-button {
+    width: 100%;
   }
 }

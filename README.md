@@ -1,6 +1,6 @@
 # Attendance Manager Web
 
-근태관리 프로그램의 초기 버전입니다. Express 기반의 백엔드와 React(Vite) 기반의 프론트엔드를 포함하고 있으며, JWT를 활용한 로그인 및 세션 유지 기능을 제공합니다. 2025년 이후 기능 확장을 염두에 두고 백엔드와 프론트엔드를 도메인 별 패키지 구조로 리팩토링했으며, 현재 매장/직원/출퇴근 데이터는 MySQL에 영구 저장됩니다.
+근태관리 프로그램의 초기 버전입니다. Express 기반의 백엔드와 React(Vite) 기반의 프론트엔드를 포함하고 있으며, JWT를 활용한 아이디 기반 로그인/세션 유지 기능을 제공합니다. 2025년 이후 기능 확장을 염두에 두고 백엔드와 프론트엔드를 도메인 별 패키지 구조로 리팩토링했으며, 현재 매장/직원/출퇴근 데이터는 MySQL에 영구 저장됩니다.
 
 ## 프로젝트 구조
 
@@ -89,7 +89,8 @@ cp frontend/.env.example frontend/.env
    mysql -u attendance_user -p attendance_manager < backend/sql/schema.sql
    ```
 
-   위 스크립트는 `admin@example.com / admin123` 계정을 생성하므로 바로 로그인할 수 있습니다.
+   위 스크립트는 `admin / admin123` 계정을 생성하므로 바로 로그인할 수 있습니다. 추가로 가입 가능한 초대 코드는
+   `backend/src/features/auth/signup-codes.js` 파일에서 수정할 수 있습니다.
 
 ## 실행 방법
 
@@ -109,10 +110,13 @@ npm run dev
 | --- | --- | --- |
 | `GET` | `/api/health` | 애플리케이션 상태 확인 |
 | `POST` | `/api/auth/login` | 사용자 로그인 및 세션 발급 |
+| `POST` | `/api/auth/register` | 가입 코드 기반 사용자 등록 및 즉시 로그인 |
 | `GET` | `/api/auth/session` | 현재 로그인 세션 조회 |
+| `DELETE` | `/api/auth/account` | 본인 인증 후 계정/데이터 삭제 |
 | `POST` | `/api/auth/logout` | 세션 만료 및 쿠키 삭제 |
 | `GET` | `/api/stores` | 로그인한 사용자의 매장 목록 조회 |
 | `POST` | `/api/stores` | 매장 생성 및 기본 직급 등록 |
+| `DELETE` | `/api/stores/:storeId` | 매장 및 하위 데이터 삭제 |
 | `GET` | `/api/stores/:storeId/employees` | 매장별 직원 목록 조회 |
 | `POST` | `/api/stores/:storeId/employees` | 직원 등록 |
 | `PUT` | `/api/stores/:storeId/employees/:employeeId` | 직원 정보 수정 |
@@ -136,9 +140,9 @@ npm run dev
 
 ## 테스트 계정
 
-| 이름 | 이메일 | 비밀번호 | 역할 |
+| 이름 | 아이디 | 비밀번호 | 비고 |
 | --- | --- | --- | --- |
-| 관리자 | admin@example.com | admin123 | admin |
+| 관리자 | admin | admin123 | 가입 코드는 `backend/src/features/auth/signup-codes.js`에서 관리 |
 
 ## 향후 확장 아이디어
 

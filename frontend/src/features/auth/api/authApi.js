@@ -8,6 +8,11 @@ export const authApi = {
     return response.data;
   },
 
+  async registerAccount(payload) {
+    const response = await httpClient.post(`${basePath}/register`, payload);
+    return response.data;
+  },
+
   async logout() {
     const response = await httpClient.post(`${basePath}/logout`);
     return response.data;
@@ -15,6 +20,11 @@ export const authApi = {
 
   async fetchSession() {
     const response = await httpClient.get(`${basePath}/session`);
+    return response.data;
+  },
+
+  async deleteAccount(payload) {
+    const response = await httpClient.delete(`${basePath}/account`, { data: payload });
     return response.data;
   }
 };
