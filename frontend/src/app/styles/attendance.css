@@ -299,12 +299,6 @@
   white-space: normal;
   word-break: break-word;
 }
-.attendance-table-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
 .attendance-col {
   white-space: nowrap;
 }
@@ -327,28 +321,11 @@
   width: 7rem;
 }
 
-.attendance-col-actions {
-  text-align: right;
-  width: 1%;
-  min-width: 136px;
-  white-space: nowrap;
-}
-
-.attendance-col-actions .attendance-table-actions {
-  justify-content: flex-end;
-}
-
 .attendance-col-memo {
   width: auto;
   min-width: clamp(220px, 35vw, 520px);
   max-width: none;
   white-space: normal;
-}
-
-@media (max-width: 1200px) {
-  .attendance-col-actions {
-    display: none;
-  }
 }
 
 @media (max-width: 1050px) {
@@ -413,14 +390,6 @@
 
   .attendance-table {
     min-width: 480px;
-  }
-
-  .attendance-table-actions {
-    flex-direction: column;
-  }
-
-  .attendance-table-actions button {
-    width: 100%;
   }
 
   .attendance-detail {

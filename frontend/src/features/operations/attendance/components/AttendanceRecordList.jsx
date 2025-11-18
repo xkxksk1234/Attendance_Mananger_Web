@@ -1,7 +1,7 @@
 import { getAttendanceStatusLabel } from '../constants/statusOptions.js';
 import { calculateWorkMinutes, formatDateLabel, formatWorkDuration } from '../utils/timeCalculations.js';
 
-export const AttendanceRecordList = ({ records, onEdit, onDelete, onSelect, onCopy, selectedRecordId }) => {
+export const AttendanceRecordList = ({ records, onSelect, selectedRecordId }) => {
   if (!records?.length) {
     return <p className="attendance-empty">아직 등록된 근태 기록이 없습니다. 새로운 기록을 추가해 주세요.</p>;
   }
@@ -31,9 +31,6 @@ export const AttendanceRecordList = ({ records, onEdit, onDelete, onSelect, onCo
             </th>
             <th scope="col" className="attendance-col attendance-col-memo">
               비고
-            </th>
-            <th scope="col" className="attendance-col attendance-col-actions">
-              작업
             </th>
           </tr>
         </thead>
@@ -77,40 +74,6 @@ export const AttendanceRecordList = ({ records, onEdit, onDelete, onSelect, onCo
                 <td className="attendance-col attendance-col-break">{breakLabel}</td>
                 <td className="attendance-col attendance-col-status attendance-status-cell">{statusLabel}</td>
                 <td className="attendance-col attendance-col-memo attendance-memo-cell">{memoPreview}</td>
-                <td className="attendance-col attendance-col-actions">
-                  <div className="attendance-table-actions">
-                    <button
-                      type="button"
-                      className="button-secondary"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onCopy?.(record);
-                      }}
-                    >
-                      복사
-                    </button>
-                    <button
-                      type="button"
-                      className="button-tertiary"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onEdit(record);
-                      }}
-                    >
-                      수정
-                    </button>
-                    <button
-                      type="button"
-                      className="button-danger"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onDelete(record);
-                      }}
-                    >
-                      삭제
-                    </button>
-                  </div>
-                </td>
               </tr>
             );
           })}

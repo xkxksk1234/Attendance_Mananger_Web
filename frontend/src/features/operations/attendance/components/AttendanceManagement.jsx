@@ -218,14 +218,7 @@ export const AttendanceManagement = () => {
 
           <AttendanceSummary records={records} employeeName={selectedEmployee.name} />
 
-          <AttendanceRecordList
-            records={records}
-            onEdit={handleEditRecord}
-            onDelete={handleDeleteRecord}
-            onSelect={handleSelectRecord}
-            onCopy={handleCopyRecord}
-            selectedRecordId={selectedRecordId}
-          />
+          <AttendanceRecordList records={records} onSelect={handleSelectRecord} selectedRecordId={selectedRecordId} />
 
           {selectedRecord && (
             <AttendanceRecordDetail
