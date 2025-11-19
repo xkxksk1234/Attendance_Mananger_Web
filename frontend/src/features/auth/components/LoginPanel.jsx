@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../hooks/useAuth.js';
 
+const ACCOUNT_ID_REGEX = /^[a-zA-Z0-9]{4,32}$/;
+
 const initialFormState = {
   accountId: '',
   password: ''
@@ -29,10 +31,18 @@ export const LoginPanel = ({ onSwitch }) => {
     setSubmitting(true);
     setError('');
 
+    const trimmedAccountId = form.accountId.trim();
+
+    if (!ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
+      setSubmitting(false);
+      setError('아이디는 영문/숫자 조합 4~32자로 입력해주세요.');
+      return;
+    }
+
     try {
-      await login({ accountId: form.accountId.trim(), password: form.password });
+      await login({ accountId: trimmedAccountId, password: form.password });
       if (isMountedRef.current) {
-        setForm(initialFormState);
+        setForm({ ...initialFormState });
       }
     } catch (submitError) {
       if (!isMountedRef.current) {

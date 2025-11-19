@@ -17,12 +17,17 @@ const sanitizeUser = (user) => ({
 export const login = async (req, res, next) => {
   try {
     const { accountId, password } = req.body || {};
+    const trimmedAccountId = accountId?.trim();
 
-    if (!accountId || !password) {
+    if (!trimmedAccountId || !password) {
       return res.status(400).json({ message: '아이디와 비밀번호를 입력해주세요.' });
     }
 
-    const user = await authService.authenticate(accountId, password);
+    if (!ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
+      return res.status(400).json({ message: '아이디는 영문/숫자 조합 4~32자로 입력해주세요.' });
+    }
+
+    const user = await authService.authenticate(trimmedAccountId, password);
 
     if (!user) {
       return res.status(401).json({ message: '아이디 혹은 비밀번호가 올바르지 않습니다.' });
