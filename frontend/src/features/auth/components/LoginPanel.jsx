@@ -59,14 +59,15 @@ export const LoginPanel = ({ onSwitch }) => {
       }
 
       const status = submitError?.response?.status;
+      const backendMessage = submitError?.response?.data?.message;
       if (status === 401) {
-        setError('아이디 또는 비밀번호가 올바르지 않습니다. 다시 확인해주세요.');
+        setError(
+          backendMessage || '아이디 또는 비밀번호가 올바르지 않습니다. 다시 확인해주세요.'
+        );
         return;
       }
 
-      const message =
-        submitError?.response?.data?.message || '로그인 중 문제가 발생했습니다.';
-      setError(message);
+      setError(backendMessage || '로그인 중 문제가 발생했습니다.');
     } finally {
       if (isMountedRef.current) {
         setSubmitting(false);
