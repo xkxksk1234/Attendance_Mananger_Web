@@ -3,7 +3,9 @@ import { sessionCookieOptions, clearSessionCookieOptions } from '../../config/co
 import { env } from '../../config/env.js';
 import { isValidSignupCode } from './signup-codes.js';
 
-const ACCOUNT_ID_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9_-]{3,31}$/;
+const ACCOUNT_ID_REGEX = /^[a-zA-Z0-9]{4,32}$/;
+const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*_\-+=?]{8,64}$/;
+const PASSWORD_SPECIALS_LABEL = '! @ # $ % ^ & * _ - + = ?';
 
 const sanitizeUser = (user) => ({
   id: user.id,
@@ -47,15 +49,19 @@ export const registerAccount = async (req, res, next) => {
     }
 
     if (!trimmedAccountId || !ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
-      return res.status(400).json({ message: '아이디는 영문/숫자/(_-) 조합 4~32자로 입력해주세요.' });
+      return res
+        .status(400)
+        .json({ message: '아이디는 영문/숫자 조합 4~32자로 입력해주세요.' });
     }
 
     if (!trimmedName || trimmedName.length < 2) {
       return res.status(400).json({ message: '이름을 두 글자 이상 입력해주세요.' });
     }
 
-    if (!password || password.length < 8) {
-      return res.status(400).json({ message: '비밀번호는 8자 이상 입력해주세요.' });
+    if (!password || !PASSWORD_REGEX.test(password)) {
+      return res.status(400).json({
+        message: `비밀번호는 8~64자의 영문, 숫자, (${PASSWORD_SPECIALS_LABEL})만 사용할 수 있습니다.`
+      });
     }
 
     const user = await authService.registerAccount({

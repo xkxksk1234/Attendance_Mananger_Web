@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../hooks/useAuth.js';
 
+const ACCOUNT_ID_REGEX = /^[a-zA-Z0-9]{4,32}$/;
+const PASSWORD_REGEX = /^[a-zA-Z0-9!@#$%^&*_\-+=?]{8,64}$/;
+const PASSWORD_SPECIALS_LABEL = '! @ # $ % ^ & * _ - + = ?';
+
 const initialFormState = {
   signupCode: '',
   accountId: '',
@@ -31,6 +35,18 @@ export const SignupPanel = ({ onSwitch }) => {
     event.preventDefault();
     setError('');
 
+    const trimmedAccountId = form.accountId.trim();
+
+    if (!ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
+      setError('아이디는 영문/숫자 조합 4~32자로 입력해주세요.');
+      return;
+    }
+
+    if (!PASSWORD_REGEX.test(form.password)) {
+      setError(`비밀번호는 8~64자의 영문, 숫자, (${PASSWORD_SPECIALS_LABEL})만 사용할 수 있습니다.`);
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
       setError('비밀번호 확인이 일치하지 않습니다.');
       return;
@@ -41,7 +57,7 @@ export const SignupPanel = ({ onSwitch }) => {
     try {
       await registerAccount({
         signupCode: form.signupCode.trim(),
-        accountId: form.accountId.trim(),
+        accountId: trimmedAccountId,
         name: form.name.trim(),
         password: form.password
       });
@@ -100,6 +116,9 @@ export const SignupPanel = ({ onSwitch }) => {
       />
 
       <label htmlFor="newPassword">비밀번호</label>
+      <p className="form-hint form-hint--danger">
+        사용 가능한 특수문자 : {PASSWORD_SPECIALS_LABEL}
+      </p>
       <input
         id="newPassword"
         name="password"
