@@ -1,5 +1,38 @@
 import { db } from '../../config/database.js';
 
+let ensureAttendanceTablePromise = null;
+
+const ensureAttendanceTable = async () => {
+  if (!ensureAttendanceTablePromise) {
+    ensureAttendanceTablePromise = db.pool
+      .execute(`
+        CREATE TABLE IF NOT EXISTS attendance_records (
+          id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+          store_id INT UNSIGNED NOT NULL,
+          employee_id BIGINT UNSIGNED NOT NULL,
+          date DATE NOT NULL,
+          check_in TIME NULL,
+          check_out TIME NULL,
+          break_minutes INT UNSIGNED NOT NULL DEFAULT 0,
+          status VARCHAR(50) NOT NULL,
+          memo VARCHAR(255) NULL,
+          total_minutes INT UNSIGNED NOT NULL DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          INDEX idx_attendance_store_employee (store_id, employee_id),
+          CONSTRAINT fk_attendance_store FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE,
+          CONSTRAINT fk_attendance_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+      `)
+      .catch((error) => {
+        ensureAttendanceTablePromise = null;
+        throw error;
+      });
+  }
+
+  return ensureAttendanceTablePromise;
+};
+
 const formatDateValue = (value) => {
   if (!value) {
     return null;
@@ -58,6 +91,7 @@ export const attendanceRepository = {
       return [];
     }
 
+    await ensureAttendanceTable();
     const rows = await db.query(
       `SELECT *
        FROM attendance_records
@@ -74,6 +108,7 @@ export const attendanceRepository = {
       return null;
     }
 
+    await ensureAttendanceTable();
     const rows = await db.query(
       `SELECT *
        FROM attendance_records
@@ -86,6 +121,7 @@ export const attendanceRepository = {
   },
 
   async create(storeId, employeeId, payload) {
+    await ensureAttendanceTable();
     const [result] = await db.pool.execute(
       `INSERT INTO attendance_records (
          store_id,
@@ -115,6 +151,7 @@ export const attendanceRepository = {
   },
 
   async update(storeId, recordId, payload) {
+    await ensureAttendanceTable();
     const [result] = await db.pool.execute(
       `UPDATE attendance_records
        SET date = ?,
@@ -146,6 +183,7 @@ export const attendanceRepository = {
   },
 
   async delete(storeId, recordId) {
+    await ensureAttendanceTable();
     const [result] = await db.pool.execute(
       `DELETE FROM attendance_records
        WHERE store_id = ? AND id = ?`,
