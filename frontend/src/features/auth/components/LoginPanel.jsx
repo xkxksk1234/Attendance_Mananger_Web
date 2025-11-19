@@ -29,19 +29,25 @@ export const LoginPanel = ({ onSwitch }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setSubmitting(true);
     setError('');
 
     const trimmedAccountId = form.accountId.trim();
+    const trimmedPassword = form.password.trim();
 
     if (!ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
-      setSubmitting(false);
       setError('아이디는 영문/숫자 조합 4~32자로 입력해주세요.');
       return;
     }
 
+    if (!trimmedPassword) {
+      setError('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    setSubmitting(true);
+
     try {
-      await login({ accountId: trimmedAccountId, password: form.password });
+      await login({ accountId: trimmedAccountId, password: trimmedPassword });
       if (isMountedRef.current) {
         setForm({ ...initialFormState });
       }
@@ -101,7 +107,12 @@ export const LoginPanel = ({ onSwitch }) => {
 
       {error && <p className="error">{error}</p>}
 
-      <button type="submit" disabled={submitting}>
+      <button
+        type="submit"
+        disabled={
+          submitting || !form.accountId.trim() || !form.password.trim()
+        }
+      >
         {submitting ? '로그인 중...' : '로그인'}
       </button>
 

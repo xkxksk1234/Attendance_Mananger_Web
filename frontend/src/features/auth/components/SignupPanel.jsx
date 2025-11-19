@@ -104,7 +104,9 @@ export const SignupPanel = ({ onSwitch }) => {
       const status = submitError?.response?.status;
 
       if (status === 403) {
-        setFieldErrors((prev) => ({ ...prev, signupCode: '올바른 부여코드를 입력해주세요.' }));
+        const invalidCodeMessage = '올바른 부여코드를 입력해주세요.';
+        setFieldErrors((prev) => ({ ...prev, signupCode: invalidCodeMessage }));
+        setError(invalidCodeMessage);
         return;
       }
 
