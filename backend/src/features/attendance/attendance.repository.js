@@ -1,37 +1,7 @@
 import { db } from '../../config/database.js';
 
-let ensureAttendanceTablePromise = null;
-
-const ensureAttendanceTable = async () => {
-  if (!ensureAttendanceTablePromise) {
-    ensureAttendanceTablePromise = db.pool
-      .execute(`
-        CREATE TABLE IF NOT EXISTS attendance_records (
-          id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-          store_id INT UNSIGNED NOT NULL,
-          employee_id BIGINT UNSIGNED NOT NULL,
-          date DATE NOT NULL,
-          check_in TIME NULL,
-          check_out TIME NULL,
-          break_minutes INT UNSIGNED NOT NULL DEFAULT 0,
-          status VARCHAR(50) NOT NULL,
-          memo VARCHAR(255) NULL,
-          total_minutes INT UNSIGNED NOT NULL DEFAULT 0,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-          INDEX idx_attendance_store_employee (store_id, employee_id),
-          CONSTRAINT fk_attendance_store FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE,
-          CONSTRAINT fk_attendance_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-      `)
-      .catch((error) => {
-        ensureAttendanceTablePromise = null;
-        throw error;
-      });
-  }
-
-  return ensureAttendanceTablePromise;
-};
+const isMissingAttendanceTableError = (error) =>
+  error?.code === 'ER_NO_SUCH_TABLE' || error?.sqlState === '42S02';
 
 const formatDateValue = (value) => {
   if (!value) {
@@ -91,16 +61,23 @@ export const attendanceRepository = {
       return [];
     }
 
-    await ensureAttendanceTable();
-    const rows = await db.query(
-      `SELECT *
-       FROM attendance_records
-       WHERE store_id = ? AND employee_id = ?
-       ORDER BY date DESC, id DESC`,
-      [storeId, employeeId]
-    );
+    try {
+      const rows = await db.query(
+        `SELECT *
+         FROM attendance_records
+         WHERE store_id = ? AND employee_id = ?
+         ORDER BY date DESC, id DESC`,
+        [storeId, employeeId]
+      );
 
-    return rows.map(mapRecord);
+      return rows.map(mapRecord);
+    } catch (error) {
+      if (isMissingAttendanceTableError(error)) {
+        return [];
+      }
+
+      throw error;
+    }
   },
 
   async findById(storeId, recordId) {
@@ -108,20 +85,26 @@ export const attendanceRepository = {
       return null;
     }
 
-    await ensureAttendanceTable();
-    const rows = await db.query(
-      `SELECT *
-       FROM attendance_records
-       WHERE store_id = ? AND id = ?
-       LIMIT 1`,
-      [storeId, recordId]
-    );
+    try {
+      const rows = await db.query(
+        `SELECT *
+         FROM attendance_records
+         WHERE store_id = ? AND id = ?
+         LIMIT 1`,
+        [storeId, recordId]
+      );
 
-    return rows.length ? mapRecord(rows[0]) : null;
+      return rows.length ? mapRecord(rows[0]) : null;
+    } catch (error) {
+      if (isMissingAttendanceTableError(error)) {
+        return null;
+      }
+
+      throw error;
+    }
   },
 
   async create(storeId, employeeId, payload) {
-    await ensureAttendanceTable();
     const [result] = await db.pool.execute(
       `INSERT INTO attendance_records (
          store_id,
@@ -151,7 +134,6 @@ export const attendanceRepository = {
   },
 
   async update(storeId, recordId, payload) {
-    await ensureAttendanceTable();
     const [result] = await db.pool.execute(
       `UPDATE attendance_records
        SET date = ?,
@@ -183,7 +165,6 @@ export const attendanceRepository = {
   },
 
   async delete(storeId, recordId) {
-    await ensureAttendanceTable();
     const [result] = await db.pool.execute(
       `DELETE FROM attendance_records
        WHERE store_id = ? AND id = ?`,
