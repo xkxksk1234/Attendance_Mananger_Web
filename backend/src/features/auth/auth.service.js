@@ -57,7 +57,7 @@ export const authService = {
       accountId,
       name,
       ...passwordArtifacts,
-      role: 'admin'
+      role: 'user'
     });
   },
 
