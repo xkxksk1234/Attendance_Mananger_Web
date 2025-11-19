@@ -1,0 +1,166 @@
+.store-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.store-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.store-intro {
+  flex: 1 1 220px;
+}
+
+.store-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.store-select {
+  min-width: 220px;
+}
+
+.store-create-button {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.store-form {
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.store-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.store-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.store-field span {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.store-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+.store-checkbox input {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 0.35rem;
+  border: 1px solid #d1d5db;
+}
+
+.store-checkbox span {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.store-error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 0.85rem;
+}
+
+.store-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.store-empty {
+  margin: 0;
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+  text-align: center;
+}
+
+.store-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.store-overview-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.store-overview-header h3 {
+  margin: 0;
+}
+
+.store-overview-header p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.store-delete-button {
+  min-width: 140px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .store-actions {
+    align-items: stretch;
+  }
+
+  .store-create-button {
+    width: 100%;
+  }
+
+  .store-select {
+    width: 100%;
+  }
+
+  .store-form {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .store-form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .store-form-actions {
+    flex-direction: column;
+  }
+
+  .store-overview-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .store-delete-button {
+    width: 100%;
+  }
+}

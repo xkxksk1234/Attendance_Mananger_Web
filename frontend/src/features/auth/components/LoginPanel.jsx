@@ -1,0 +1,97 @@
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../hooks/useAuth.js';
+
+const initialFormState = {
+  accountId: '',
+  password: ''
+};
+
+export const LoginPanel = ({ onSwitch }) => {
+  const { login } = useAuth();
+  const [form, setForm] = useState(initialFormState);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setError('');
+
+    try {
+      await login({ accountId: form.accountId.trim(), password: form.password });
+      if (isMountedRef.current) {
+        setForm(initialFormState);
+      }
+    } catch (submitError) {
+      if (!isMountedRef.current) {
+        return;
+      }
+
+      const message =
+        submitError?.response?.data?.message || '로그인 중 문제가 발생했습니다.';
+      setError(message);
+    } finally {
+      if (isMountedRef.current) {
+        setSubmitting(false);
+      }
+    }
+  };
+
+  return (
+    <form className="card auth-panel" onSubmit={handleSubmit} noValidate>
+      <h2>계정 로그인</h2>
+      <label htmlFor="accountId">아이디</label>
+      <input
+        id="accountId"
+        name="accountId"
+        type="text"
+        placeholder="예: manager01"
+        autoComplete="username"
+        value={form.accountId}
+        onChange={handleChange}
+        required
+      />
+
+      <label htmlFor="password">비밀번호</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        placeholder="********"
+        autoComplete="current-password"
+        value={form.password}
+        onChange={handleChange}
+        required
+      />
+
+      {error && <p className="error">{error}</p>}
+
+      <button type="submit" disabled={submitting}>
+        {submitting ? '로그인 중...' : '로그인'}
+      </button>
+
+      <p className="form-hint">
+        아직 계정이 없다면{' '}
+        <button
+          type="button"
+          className="link-button"
+          onClick={() => onSwitch?.('signup')}
+        >
+          회원가입을 진행하세요.
+        </button>
+      </p>
+    </form>
+  );
+};
