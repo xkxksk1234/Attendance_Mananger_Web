@@ -96,8 +96,14 @@ export const SignupPanel = ({ onSwitch }) => {
         id="newAccountId"
         name="accountId"
         type="text"
+        inputMode="text"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck="false"
         placeholder="영문/숫자 4~32자"
         autoComplete="username"
+        pattern="[A-Za-z0-9]{4,32}"
+        title="아이디는 영문과 숫자로 4~32자까지 입력할 수 있습니다."
         value={form.accountId}
         onChange={handleChange}
         required

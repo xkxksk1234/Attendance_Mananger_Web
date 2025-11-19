@@ -67,8 +67,14 @@ export const LoginPanel = ({ onSwitch }) => {
         id="accountId"
         name="accountId"
         type="text"
-        placeholder="예: manager01"
+        inputMode="text"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck="false"
+        placeholder="아이디 (예: manager01)"
         autoComplete="username"
+        pattern="[A-Za-z0-9]{4,32}"
+        title="아이디는 영문과 숫자로 4~32자까지 입력할 수 있습니다."
         value={form.accountId}
         onChange={handleChange}
         required
