@@ -16,8 +16,9 @@ const sanitizeUser = (user) => ({
 
 export const login = async (req, res, next) => {
   try {
-    const { accountId, password } = req.body || {};
-    const trimmedAccountId = accountId?.trim();
+    const { accountId, username, password } = req.body || {};
+    const rawAccountId = accountId ?? username;
+    const trimmedAccountId = rawAccountId?.trim();
 
     if (!trimmedAccountId || !password) {
       return res.status(400).json({ message: '아이디와 비밀번호를 입력해주세요.' });

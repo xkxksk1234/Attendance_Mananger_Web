@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth.js';
 const ACCOUNT_ID_REGEX = /^[a-zA-Z0-9]{4,32}$/;
 
 const initialFormState = {
-  accountId: '',
+  username: '',
   password: ''
 };
 
@@ -31,7 +31,7 @@ export const LoginPanel = ({ onSwitch }) => {
     setSubmitting(true);
     setError('');
 
-    const trimmedAccountId = form.accountId.trim();
+    const trimmedAccountId = form.username.trim();
 
     if (!ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
       setSubmitting(false);
@@ -62,10 +62,10 @@ export const LoginPanel = ({ onSwitch }) => {
   return (
     <form className="card auth-panel" onSubmit={handleSubmit} noValidate>
       <h2>계정 로그인</h2>
-      <label htmlFor="accountId">아이디</label>
+      <label htmlFor="username">아이디</label>
       <input
-        id="accountId"
-        name="accountId"
+        id="username"
+        name="username"
         type="text"
         inputMode="text"
         autoCapitalize="none"
@@ -75,7 +75,7 @@ export const LoginPanel = ({ onSwitch }) => {
         autoComplete="username"
         pattern="[A-Za-z0-9]{4,32}"
         title="아이디는 영문과 숫자로 4~32자까지 입력할 수 있습니다."
-        value={form.accountId}
+        value={form.username}
         onChange={handleChange}
         required
       />
