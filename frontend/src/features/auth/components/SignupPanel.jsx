@@ -13,10 +13,19 @@ const initialFormState = {
   confirmPassword: ''
 };
 
+const initialFieldErrors = {
+  signupCode: '',
+  accountId: '',
+  name: '',
+  password: '',
+  confirmPassword: ''
+};
+
 export const SignupPanel = ({ onSwitch }) => {
   const { registerAccount } = useAuth();
   const [form, setForm] = useState(initialFormState);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({ ...initialFieldErrors });
   const [submitting, setSubmitting] = useState(false);
   const isMountedRef = useRef(true);
 
@@ -29,40 +38,73 @@ export const SignupPanel = ({ onSwitch }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+    setError('');
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
-
+    const trimmedSignupCode = form.signupCode.trim();
     const trimmedAccountId = form.accountId.trim();
+    const trimmedName = form.name.trim();
+    const errors = { ...initialFieldErrors };
 
-    if (!ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
-      setError('아이디는 영문/숫자 조합 4~32자로 입력해주세요.');
+    if (!trimmedSignupCode) {
+      errors.signupCode = '부여코드를 입력해주세요.';
+    }
+
+    if (!trimmedAccountId) {
+      errors.accountId = '아이디를 입력해주세요.';
+    } else if (!ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
+      errors.accountId = '아이디는 영문/숫자 조합 4~32자로 입력해주세요.';
+    }
+
+    if (!trimmedName) {
+      errors.name = '이름을 입력해주세요.';
+    } else if (trimmedName.length < 2) {
+      errors.name = '이름을 두 글자 이상 입력해주세요.';
+    }
+
+    if (!form.password) {
+      errors.password = '비밀번호를 입력해주세요.';
+    } else if (!PASSWORD_REGEX.test(form.password)) {
+      errors.password = `비밀번호는 8~64자의 영문, 숫자, (${PASSWORD_SPECIALS_LABEL})만 사용할 수 있습니다.`;
+    }
+
+    if (!form.confirmPassword) {
+      errors.confirmPassword = '비밀번호 확인을 입력해주세요.';
+    } else if (form.password !== form.confirmPassword) {
+      errors.confirmPassword = '비밀번호 확인이 일치하지 않습니다.';
+    }
+
+    const hasErrors = Object.values(errors).some(Boolean);
+
+    if (hasErrors) {
+      setFieldErrors(errors);
       return;
     }
 
-    if (!PASSWORD_REGEX.test(form.password)) {
-      setError(`비밀번호는 8~64자의 영문, 숫자, (${PASSWORD_SPECIALS_LABEL})만 사용할 수 있습니다.`);
-      return;
-    }
-
-    if (form.password !== form.confirmPassword) {
-      setError('비밀번호 확인이 일치하지 않습니다.');
-      return;
-    }
+    setFieldErrors({ ...initialFieldErrors });
 
     setSubmitting(true);
 
     try {
       await registerAccount({
-        signupCode: form.signupCode.trim(),
+        signupCode: trimmedSignupCode,
         accountId: trimmedAccountId,
-        name: form.name.trim(),
+        name: trimmedName,
         password: form.password
       });
     } catch (submitError) {
       if (!isMountedRef.current) {
+        return;
+      }
+
+      const status = submitError?.response?.status;
+
+      if (status === 403) {
+        setFieldErrors((prev) => ({ ...prev, signupCode: '올바른 부여코드를 입력해주세요.' }));
         return;
       }
 
@@ -90,6 +132,7 @@ export const SignupPanel = ({ onSwitch }) => {
         required
       />
       <p className="form-hint">발급된 코드로만 가입할 수 있습니다.</p>
+      {fieldErrors.signupCode && <p className="error">{fieldErrors.signupCode}</p>}
 
       <label htmlFor="newAccountId">아이디</label>
       <input
@@ -108,6 +151,7 @@ export const SignupPanel = ({ onSwitch }) => {
         onChange={handleChange}
         required
       />
+      {fieldErrors.accountId && <p className="error">{fieldErrors.accountId}</p>}
 
       <label htmlFor="name">이름</label>
       <input
@@ -120,6 +164,7 @@ export const SignupPanel = ({ onSwitch }) => {
         onChange={handleChange}
         required
       />
+      {fieldErrors.name && <p className="error">{fieldErrors.name}</p>}
 
       <label htmlFor="newPassword">비밀번호</label>
       <p className="form-hint form-hint--danger">
@@ -135,6 +180,7 @@ export const SignupPanel = ({ onSwitch }) => {
         onChange={handleChange}
         required
       />
+      {fieldErrors.password && <p className="error">{fieldErrors.password}</p>}
 
       <label htmlFor="confirmPassword">비밀번호 확인</label>
       <input
@@ -147,6 +193,7 @@ export const SignupPanel = ({ onSwitch }) => {
         onChange={handleChange}
         required
       />
+      {fieldErrors.confirmPassword && <p className="error">{fieldErrors.confirmPassword}</p>}
 
       {error && <p className="error">{error}</p>}
 

@@ -24,6 +24,7 @@ export const LoginPanel = ({ onSwitch }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setError('');
   };
 
   const handleSubmit = async (event) => {
@@ -46,6 +47,12 @@ export const LoginPanel = ({ onSwitch }) => {
       }
     } catch (submitError) {
       if (!isMountedRef.current) {
+        return;
+      }
+
+      const status = submitError?.response?.status;
+      if (status === 401) {
+        setError('아이디 또는 비밀번호가 올바르지 않습니다. 다시 확인해주세요.');
         return;
       }
 
