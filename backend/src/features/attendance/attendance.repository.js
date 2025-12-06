@@ -1,5 +1,8 @@
 import { db } from '../../config/database.js';
 
+const isMissingAttendanceTableError = (error) =>
+  error?.code === 'ER_NO_SUCH_TABLE' || error?.sqlState === '42S02';
+
 const formatDateValue = (value) => {
   if (!value) {
     return null;
@@ -58,15 +61,23 @@ export const attendanceRepository = {
       return [];
     }
 
-    const rows = await db.query(
-      `SELECT *
-       FROM attendance_records
-       WHERE store_id = ? AND employee_id = ?
-       ORDER BY date DESC, id DESC`,
-      [storeId, employeeId]
-    );
+    try {
+      const rows = await db.query(
+        `SELECT *
+         FROM attendance_records
+         WHERE store_id = ? AND employee_id = ?
+         ORDER BY date DESC, id DESC`,
+        [storeId, employeeId]
+      );
 
-    return rows.map(mapRecord);
+      return rows.map(mapRecord);
+    } catch (error) {
+      if (isMissingAttendanceTableError(error)) {
+        return [];
+      }
+
+      throw error;
+    }
   },
 
   async findById(storeId, recordId) {
@@ -74,15 +85,23 @@ export const attendanceRepository = {
       return null;
     }
 
-    const rows = await db.query(
-      `SELECT *
-       FROM attendance_records
-       WHERE store_id = ? AND id = ?
-       LIMIT 1`,
-      [storeId, recordId]
-    );
+    try {
+      const rows = await db.query(
+        `SELECT *
+         FROM attendance_records
+         WHERE store_id = ? AND id = ?
+         LIMIT 1`,
+        [storeId, recordId]
+      );
 
-    return rows.length ? mapRecord(rows[0]) : null;
+      return rows.length ? mapRecord(rows[0]) : null;
+    } catch (error) {
+      if (isMissingAttendanceTableError(error)) {
+        return null;
+      }
+
+      throw error;
+    }
   },
 
   async create(storeId, employeeId, payload) {

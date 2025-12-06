@@ -1,5 +1,8 @@
 import { db } from '../../config/database.js';
 
+const VALID_ROLES = ['owner', 'admin', 'user'];
+const DEFAULT_ROLE = 'user';
+
 const mapUserRow = (row) => {
   if (!row) {
     return null;
@@ -50,6 +53,11 @@ export const userRepository = {
   },
 
   async create(userInput) {
+    const normalizedRole =
+      typeof userInput.role === 'string' && VALID_ROLES.includes(userInput.role)
+        ? userInput.role
+        : DEFAULT_ROLE;
+
     const [result] = await db.pool.execute(
       `INSERT INTO users (
          name,
@@ -65,7 +73,7 @@ export const userRepository = {
         userInput.passwordHash,
         userInput.passwordSalt,
         userInput.passwordSuffix,
-        userInput.role ?? 'admin'
+        normalizedRole
       ]
     );
 

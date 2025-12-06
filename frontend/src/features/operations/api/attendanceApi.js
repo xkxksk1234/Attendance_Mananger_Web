@@ -8,11 +8,26 @@ export const attendanceApi = {
       return [];
     }
 
-    const { data } = await httpClient.get(
-      `${basePath}/${storeId}/attendance`,
-      { params: { employeeId } }
-    );
-    return data.records ?? [];
+    try {
+      const { data } = await httpClient.get(
+        `${basePath}/${storeId}/attendance`,
+        { params: { employeeId } }
+      );
+      return Array.isArray(data?.records) ? data.records : [];
+    } catch (error) {
+      const status = error?.response?.status;
+
+      if (status === 404 || status === 204) {
+        return [];
+      }
+
+      if (status >= 500) {
+        console.warn('근태 기록을 불러오는 중 오류가 발생했습니다.', error);
+        return [];
+      }
+
+      throw error;
+    }
   },
 
   async createRecord(storeId, payload) {

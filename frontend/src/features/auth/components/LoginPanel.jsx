@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../hooks/useAuth.js';
 
+const ACCOUNT_ID_REGEX = /^[a-zA-Z0-9]{4,32}$/;
+
 const initialFormState = {
   accountId: '',
   password: ''
@@ -14,6 +16,8 @@ export const LoginPanel = ({ onSwitch }) => {
   const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     return () => {
       isMountedRef.current = false;
     };
@@ -22,26 +26,48 @@ export const LoginPanel = ({ onSwitch }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setError('');
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setSubmitting(true);
     setError('');
 
+    const trimmedAccountId = form.accountId.trim();
+    const trimmedPassword = form.password.trim();
+
+    if (!ACCOUNT_ID_REGEX.test(trimmedAccountId)) {
+      setError('아이디는 영문/숫자 조합 4~32자로 입력해주세요.');
+      return;
+    }
+
+    if (!trimmedPassword) {
+      setError('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    setSubmitting(true);
+
     try {
-      await login({ accountId: form.accountId.trim(), password: form.password });
+      await login({ accountId: trimmedAccountId, password: trimmedPassword });
       if (isMountedRef.current) {
-        setForm(initialFormState);
+        setForm({ ...initialFormState });
       }
     } catch (submitError) {
       if (!isMountedRef.current) {
         return;
       }
 
-      const message =
-        submitError?.response?.data?.message || '로그인 중 문제가 발생했습니다.';
-      setError(message);
+      const status = submitError?.response?.status;
+      const backendMessage = submitError?.response?.data?.message;
+      if (status === 401) {
+        setError(
+          backendMessage || '아이디 또는 비밀번호가 올바르지 않습니다. 다시 확인해주세요.'
+        );
+        return;
+      }
+
+      setError(backendMessage || '로그인 중 문제가 발생했습니다.');
     } finally {
       if (isMountedRef.current) {
         setSubmitting(false);
@@ -57,8 +83,14 @@ export const LoginPanel = ({ onSwitch }) => {
         id="accountId"
         name="accountId"
         type="text"
-        placeholder="예: manager01"
+        inputMode="text"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck="false"
+        placeholder="아이디 (예: manager01)"
         autoComplete="username"
+        pattern="[A-Za-z0-9]{4,32}"
+        title="아이디는 영문과 숫자로 4~32자까지 입력할 수 있습니다."
         value={form.accountId}
         onChange={handleChange}
         required
@@ -78,7 +110,12 @@ export const LoginPanel = ({ onSwitch }) => {
 
       {error && <p className="error">{error}</p>}
 
-      <button type="submit" disabled={submitting}>
+      <button
+        type="submit"
+        disabled={
+          submitting || !form.accountId.trim() || !form.password.trim()
+        }
+      >
         {submitting ? '로그인 중...' : '로그인'}
       </button>
 
